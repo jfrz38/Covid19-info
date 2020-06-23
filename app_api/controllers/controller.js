@@ -1,15 +1,13 @@
 const mongoose = require('mongoose');
-const modelo = mongoose.model('Model');
-const modelosummary = mongoose.model('ModelSummary');
-const modelometadata = mongoose.model('ModelMetaData');
-
-const moment = require('moment');
+const global_model = mongoose.model('GlobalModel');
+const countries_summary_model = mongoose.model('CountriesSummaryModel');
+const metadata_model = mongoose.model('MetaDataModel');
 
   //Por país
   //Total
   const getConfirmedFromCountry = (req, res) => {
     res.header('Access-Control-Allow-Origin', '*');
-    modelosummary
+    countries_summary_model
     .find({country_iso2s: req.params.iso})
     .sort({date:-1})
     .exec((err, country) => {
@@ -28,7 +26,7 @@ const moment = require('moment');
 
   const getDeathsFromCountry = (req, res) => {
     res.header('Access-Control-Allow-Origin', '*');
-    modelosummary
+    countries_summary_model
     .find({country_iso2s: req.params.iso})
     .sort({date:-1})
     .exec((err, country) => {
@@ -47,7 +45,7 @@ const moment = require('moment');
 
   const getRecoveredFromCountry = (req, res) => {
     res.header('Access-Control-Allow-Origin', '*');
-    modelosummary
+    countries_summary_model
     .find({country_iso2s: req.params.iso})
     .sort({date:-1})
     .exec((err, country) => {
@@ -66,7 +64,7 @@ const moment = require('moment');
 
   const getCountryPopulation = (req,res) => {
     res.header('Access-Control-Allow-Origin', '*');
-    modelosummary
+    countries_summary_model
     .find({country_iso2s: req.params.iso})
     .sort({date:-1})
     .exec((err, country) => {
@@ -96,19 +94,13 @@ const moment = require('moment');
 
   //Global
   const getGlobalPopulation = (req,res)=>{
-
-  }
-
-  //Total
-  const getGlobalConfirmed = (req,res) =>{
-    //Ordenar todos los datos por fecha y sumar el último de todos los países
+    var date = new Date();
+    date.setHours(date.getHours() - 6);
+    date.setDate(date.getDate()-1)
+    date.setUTCHours(0,0,0,0);
     res.header('Access-Control-Allow-Origin', '*');
-    modelosummary
-    .find({},'confirmed')
-    .sort({date:-1})
-    /*.aggregate()
-    .sort({date:-1})
-    .group()*/
+    countries_summary_model
+    .find({date:date})
     .exec((err, country) => {
       if (country.length == 0) {
         return res
@@ -116,20 +108,127 @@ const moment = require('moment');
           .json({
             "message": "country not found" });
       }
-      console.log("res length= ",res.length)
+      var total = 0
+      country.forEach(element=>{
+        total+=element.population === undefined? 0: element.population
+      })
+      console.log("pop = ",total)
       res
         .status(200)
-        .json({"confirmed" : country[0].confirmed});        
+        .json({"population" : total});        
+
+    });
+  }
+
+  //Total
+  const getGlobalConfirmed = (req,res) =>{
+    var date = new Date();
+    date.setHours(date.getHours() - 6);
+    date.setDate(date.getDate()-1)
+    date.setUTCHours(0,0,0,0);
+    res.header('Access-Control-Allow-Origin', '*');
+    countries_summary_model
+    .find({date:date})
+    .exec((err, country) => {
+      if (country.length == 0) {
+        return res
+          .status(404)
+          .json({
+            "message": "country not found" });
+      }
+      var total = 0
+      country.forEach(element=>{
+        total+=element.confirmed
+      })
+      res
+        .status(200)
+        .json({"confirmed" : total});        
 
     });
   };
 
   const getGlobalDeaths = (req,res) =>{
+    var date = new Date();
+    date.setHours(date.getHours() - 6);
+    date.setDate(date.getDate()-1)
+    date.setUTCHours(0,0,0,0);
+    res.header('Access-Control-Allow-Origin', '*');
+    countries_summary_model
+    .find({date:date})
+    .exec((err, country) => {
+      if (country.length == 0) {
+        return res
+          .status(404)
+          .json({
+            "message": "country not found" });
+      }
+      var total = 0
+      country.forEach(element=>{
+        total+=element.deaths
+      })
+      res
+        .status(200)
+        .json({"deaths" : total});        
 
+    });
   };
 
   const getGlobalRecovered = (req,res) =>{
+    var date = new Date();
+    date.setHours(date.getHours() - 6);
+    date.setDate(date.getDate()-1)
+    date.setUTCHours(0,0,0,0);
+    res.header('Access-Control-Allow-Origin', '*');
+    countries_summary_model
+    .find({date:date})
+    .exec((err, country) => {
+      if (country.length == 0) {
+        return res
+          .status(404)
+          .json({
+            "message": "country not found" });
+      }
+      var total = 0
+      country.forEach(element=>{
+        total+=element.recovered
+      })
+      res
+        .status(200)
+        .json({"recovered" : total});        
 
+    });
+  };
+
+  const getGlobalDataByCountries = (req,res) =>{
+    //Devolver una lista de todos los países donde cada país es un array con los datos: ['ISO','confirmed','death']
+    var date = new Date();
+    date.setHours(date.getHours() - 6);
+    date.setDate(date.getDate()-1)
+    date.setUTCHours(0,0,0,0);
+    res.header('Access-Control-Allow-Origin', '*');
+    //global_model
+    countries_summary_model
+    .find({date:date})
+    .exec((err, country) => {
+      if (country.length == 0) {
+        return res
+          .status(404)
+          .json({
+            "message": "country not found" });
+      }
+      var data = []
+      country.forEach(element=>{
+        if(element.country == "France") element.country_iso2s[0] = "FR"
+        if(element.country == "United Kingdom") element.country_iso2s[0] = "GB"
+        if(element.country == "China") element.country_iso2s[0] = "CN"
+        data.push([element.country_iso2s[0],element.confirmed,element.deaths])
+      })
+      
+      res
+        .status(200)
+        .json({"data" : data});        
+
+    });
   };
 
   //Por días
@@ -157,7 +256,8 @@ const moment = require('moment');
     getDeathsByDaysFromCountry,
     getGlobalConfirmedByDays,
     getGlobalRecoveredByDays,
-    getGlobalDeathsByDays
+    getGlobalDeathsByDays,
+    getGlobalDataByCountries
   }
 
 
@@ -166,7 +266,7 @@ const moment = require('moment');
 
   const readSummaryCountry = (req, res) => {
     res.header('Access-Control-Allow-Origin', '*');
-    modelosummary
+    countries_summary_model
     .find({country: req.params.country})
     .exec((err, location) => {
       if (!location) {
@@ -187,7 +287,7 @@ const moment = require('moment');
 
   const readGlobalDeaths = (req, res) => {
     res.header('Access-Control-Allow-Origin', '*');
-    modelometadata
+    metadata_model
       .find({})
       .exec((err, metadata) => {
         if (!metadata) {
@@ -202,7 +302,7 @@ const moment = require('moment');
             .json(err);
         }
         console.log(metadata[0].last_date);
-        modelosummary.
+        countries_summary_model.
         find({
             date: metadata[0].last_date
           })
@@ -231,7 +331,7 @@ const moment = require('moment');
 
   const readGlobalConfirmed = (req, res) => {
     res.header('Access-Control-Allow-Origin', '*');
-    modelometadata
+    metadata_model
       .find({})
       .exec((err, metadata) => {
         if (!metadata) {
@@ -246,7 +346,7 @@ const moment = require('moment');
             .json(err);
         }
         console.log(metadata[0].last_date);
-        modelosummary.
+        countries_summary_model.
         find({
             date: metadata[0].last_date
           })
@@ -275,7 +375,7 @@ const moment = require('moment');
 
   const readGlobalRecovered = (req, res) => {
     res.header('Access-Control-Allow-Origin', '*');
-    modelometadata
+    metadata_model
       .find({})
       .exec((err, metadata) => {
         if (!metadata) {
@@ -290,7 +390,7 @@ const moment = require('moment');
             .json(err);
         }
         console.log(metadata[0].last_date);
-        modelosummary.
+        countries_summary_model.
         find({
             date: metadata[0].last_date
           })
@@ -319,7 +419,7 @@ const moment = require('moment');
 
   const readGlobalSummary = (req, res) => {
     res.header('Access-Control-Allow-Origin', '*');
-    modelometadata
+    metadata_model
       .find({})
       .exec((err, metadata) => {
         if (!metadata) {
@@ -334,7 +434,7 @@ const moment = require('moment');
             .json(err);
         }
         console.log(metadata[0].last_date);
-        modelosummary.
+        countries_summary_model.
         find({
             date: metadata[0].last_date
           })

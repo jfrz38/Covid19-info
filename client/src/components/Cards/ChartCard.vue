@@ -19,22 +19,14 @@
 export default {
   name: "chart-card",
   props: {
-    chartType: {
-      type: String,
-      default: "Line" // Line | Pie | Bar
-    },
-    chartOptions: {
-      type: Object,
-      default: () => {
-        return {};
-      }
-    },
-    chartData: {
+    chart:{
       type: Object,
       default: () => {
         return {
-          labels: [],
-          series: []
+          data: {
+            labels: [],
+            series: []
+          }
         };
       }
     },
@@ -45,7 +37,8 @@ export default {
   },
   data() {
     return {
-      chartId: "no-id"
+      chartId: "no-id",
+      chartType: "Line"
     };
   },
   methods: {
@@ -54,7 +47,7 @@ export default {
      */
     initChart(Chartist) {
       var chartIdQuery = `#${this.chartId}`;
-      Chartist[this.chartType](chartIdQuery, this.chartData, this.chartOptions);
+      Chartist["Line"](chartIdQuery, this.chart.data, this.chart.options);
     },
     /***
      * Assigns a random id to the chart

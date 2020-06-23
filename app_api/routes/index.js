@@ -19,6 +19,7 @@ router.get('/covid/global/population',controller.getGlobalPopulation)
 router.get('/covid/global/confirmed',controller.getGlobalConfirmed)
 router.get('/covid/global/recovered',controller.getGlobalRecovered)
 router.get('/covid/global/deaths',controller.getGlobalDeaths)
+router.get('/covid/global/countries-data',controller.getGlobalDataByCountries)
 //Por días
 router.get('/covid/global/confirmed-bydays',controller.getGlobalConfirmedByDays)
 router.get('/covid/global/dead-bydays',controller.getGlobalDeathsByDays)

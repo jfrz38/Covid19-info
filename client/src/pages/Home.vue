@@ -118,11 +118,19 @@
             <div class="md-layout-item md-medium-size-100 md-xsmall-size-100 md-size-75" >
               <md-card>
                 <md-card-header data-background-color="orange">
-                  <h4 class="title">Employees Stats</h4>
-                  <p class="category">New employees on 15th September, 2016</p>
+                  <h4 class="title">Mapa mundial</h4>
                 </md-card-header>
                 <md-card-content>
-                  <ordered-table table-header-color="orange"></ordered-table>
+                  
+                  <GChart style="width: 100%; height: 100%;"
+                  :settings="{ packages: ['geochart'] }"
+                  type="GeoChart"
+                  :data="chartData"
+                  :options="chartOptions"
+                  :key="chartOptions.region"
+                  />
+                  
+
                 </md-card-content>
               </md-card>
             </div>
@@ -143,10 +151,9 @@
             <!-- Abajo -->
             <div class="md-layout-item md-medium-size-100 md-xsmall-size-100 md-size-33" >
               <chart-card
-                :chart-data="dailyConfirmed.data"
-                :chart-options="dailyConfirmed.options"
-                :chart-type="'Line'"
+                :chart="dailyConfirmed"
                 data-background-color="blue"
+                :key="dailyConfirmed.country"
               >
                 <template slot="content">
                   <h4 class="title">Casos confirmados</h4>
@@ -229,19 +236,18 @@
 <script>
 import countries from "../countries.json"
 import axios from 'axios'
-import Vue from 'vue'
+import { GChart } from 'vue-google-charts'
 
 import {
   StatsCard,
   ChartCard,
-  OrderedTable
 } from "@/components";
 
 export default {
     components: {
     StatsCard,
     ChartCard,
-    OrderedTable
+    GChart
   },
   props: {
     imgLogo: {
@@ -268,16 +274,17 @@ export default {
         deaths:0
       },
       dailyConfirmed: {
+        country: "",
         data: {
-          labels: ["M", "T", "W", "T", "F", "S", "S"],
-          series: [[12, 17, 7, 17, 23, 18, 38]],
+          labels: [],
+          series: [],
         },
         options: {
           lineSmooth: this.$Chartist.Interpolation.cardinal({
             tension: 0
           }),
           low: 0,
-          high: 50,
+          high: 11,
           chartPadding: {
             top: 0,
             right: 0,
@@ -287,16 +294,17 @@ export default {
         }
       },
       dailyRecovered: {
+        country: "",
         data: {
-          labels: ["M", "T", "W", "T", "F", "S", "S"],
-          series: [[12, 17, 7, 17, 23, 18, 38]],
+          labels: [],
+          series: [],
         },
         options: {
           lineSmooth: this.$Chartist.Interpolation.cardinal({
             tension: 0
           }),
           low: 0,
-          high: 50,
+          high: 11,
           chartPadding: {
             top: 0,
             right: 0,
@@ -306,16 +314,17 @@ export default {
         }
       },
       dailyDeaths: {
+        country: "",
         data: {
-          labels: ["M", "T", "W", "T", "F", "S", "S"],
-          series: [[12, 17, 7, 17, 23, 18, 38]],
+          labels: [],
+          series: [],
         },
         options: {
           lineSmooth: this.$Chartist.Interpolation.cardinal({
             tension: 0
           }),
           low: 0,
-          high: 50,
+          high: 11,
           chartPadding: {
             top: 0,
             right: 0,
@@ -324,6 +333,16 @@ export default {
           }
         }
       },
+      chartData: [
+          ['Country','Confirmed', 'Deaths'],
+          [ 'ES', 0,0]
+        ],
+        chartOptions:{
+          region:'ES',
+          legend:'none',
+          backgroundColor: '#81d4fa',
+          }
+        //opción vacía o region:'world' muestra el mapa entero: con region:'ISO' muestra la zona
     };
   },
   methods:{
@@ -333,25 +352,28 @@ export default {
       this.current_country.name = country.Name
       if(country.Name == "Global"){
         //Estadísticas globales
-        //this.current_country.flag = "";
+        this.chartData = [['Country','Confirmed', 'Deaths'],[ '', 0,0]]
         this.current_country.capital = "N/A";
         this.current_country.area = "148.9M km2";
         this.current_country.continent = "N/A";
         this.current_country.nativeName = "N/A";
-        this.current_country.flag = "@/assets/img/earth-icon.png"; //"https://i.gyazo.com/1e421019d67c4b8d1258652413d00e3a.png"
-
-        console.log("asd antes");
+        this.current_country.flag = "https://i.gyazo.com/1e421019d67c4b8d1258652413d00e3a.png"
+        //"@/assets/img/earth-icon.png"; //"https://i.gyazo.com/1e421019d67c4b8d1258652413d00e3a.png"
+/*
+        //PARA ACTUALIZAR LAS TABLAS HACERLO ASÍ
         var newObj = {
           labels: ["M", "T", "W", "T", "F", "S", "S"],
           series: [[23, 4, 32, 3445, 33, 18, 4]],
         };
-        //this.$set(this.dailyConfirmed, 'data',newObj);
         this.dailyConfirmed.data = newObj;
-        //this.dailyConfirmed.data.series = [[23, 4, 32, 3445, 33, 18, 4]]
-        console.log("asd después")
+        this.dailyConfirmed.options.high = Math.max(newObj.series+10)
+        this.dailyConfirmed.country = "Global"
+
+*/
         //Población total
-        axios.get('http://localhost:4000/covid/global/total-population')
+        axios.get('http://localhost:4000/covid/global/population')
         .then(response=> {
+          console.log("population = ",response.data.population)
           self.current_country.population = response.data.population;
         }).catch(e=>{
           console.log("error = ",e);
@@ -361,7 +383,6 @@ export default {
         //Confirmados
         axios.get('http://localhost:4000/covid/global/confirmed')
         .then(response=> {
-          console.log("response global confirmed = ",confirmed)
           self.current_country.confirmed = response.data.confirmed;
         }).catch(e=>{
           console.log("error = ",e);
@@ -383,17 +404,35 @@ export default {
           console.log("error = ",e);
           self.current_country.deaths = 0;
         })
+
+        //Datos del mapa
+        axios.get('http://localhost:4000/covid/global/countries-data')
+        .then(response=> {
+          self.chartData =[['Country','Confirmed', 'Deaths']]
+          response.data.data.forEach(element => {
+            self.chartData.push(element)
+          });
+          self.chartOptions.region="world"
+        }).catch(e=>{
+          self.chartOptions.region="world"
+        })
       }else{
         //Estadísticas de un país en concreto
         this.loadData(country);
-        //Confirmados
-        axios.get('http://localhost:4000/covid/confirmed-people/'+country.Code)
-        .then(response=> {
-          self.current_country.confirmed = response.data.confirmed;
-        }).catch(e=>{
-          console.log("error = ",e);
-          self.current_country.confirmed = 0;
-        })
+        var promises = []
+        this.chartData = [['Country','Confirmed', 'Deaths'],[ '', 0,0]]
+        promises.push(new Promise(resolve=>{
+          //Confirmados
+          axios.get('http://localhost:4000/covid/confirmed-people/'+country.Code)
+          .then(response=> {
+            self.current_country.confirmed = response.data.confirmed;
+            resolve(true)
+          }).catch(e=>{
+            self.current_country.confirmed = 0;
+            resolve(false)
+          })
+        }))
+        
         //Curados
         axios.get('http://localhost:4000/covid/recover-people/'+country.Code)
         .then(response=> {
@@ -401,13 +440,28 @@ export default {
         }).catch(_=>{
           self.current_country.recovered = 0;
         })
-        //Fallecidos
-        axios.get('http://localhost:4000/covid/dead-people/'+country.Code)
-        .then(response=> {
-          self.current_country.deaths = response.data.deaths;
-        }).catch(_=>{
-          self.current_country.deaths = 0;
+
+        promises.push(new Promise(resolve=>{
+          //Fallecidos
+          axios.get('http://localhost:4000/covid/dead-people/'+country.Code)
+          .then(response=> {
+            self.current_country.deaths = response.data.deaths;
+            resolve(true)
+          }).catch(_=>{
+            self.current_country.deaths = 0;
+            resolve(false)
+          })
+        }))
+        
+
+        //Esperar al array de promesas
+        Promise.all(promises).then(_=>{
+          this.chartData[1][0] = country.Code;
+          this.chartData[1][1] = this.current_country.confirmed;
+          this.chartData[1][2] = this.current_country.deaths;
+          this.chartOptions.region = country.Code;
         })
+        
       }
     },
     getDay(){
@@ -441,7 +495,6 @@ export default {
           self.current_country.capital = response.data.capital;
           //Nombre nativo
           self.current_country.nativeName = response.data.nativeName;
-
         }).catch(_=>{
           self.current_country.continent = "";
         })
@@ -456,3 +509,5 @@ export default {
   }
 };
 </script>
+    
+    
