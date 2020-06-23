@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const global_model = mongoose.model('GlobalModel');
 const countries_summary_model = mongoose.model('CountriesSummaryModel');
 const metadata_model = mongoose.model('MetaDataModel');
+const moment = require('moment');
 
   //Por país
   //Total
@@ -83,13 +84,87 @@ const metadata_model = mongoose.model('MetaDataModel');
 
   //Por días
   const getConfirmedByDaysFromCountry = (req,res) =>{
+    res.header('Access-Control-Allow-Origin', '*');
+    countries_summary_model
+    .find({country_iso2s: req.params.iso})
+    .sort({date:-1})
+    .limit(15)
+    .exec((err, info) => {
+      if (info.length == 0) {
+        return res
+          .status(404)
+          .json({
+            "message": "can't retrieve info from country "+req.params.iso });
+          }
+          var dates = []
+          var confirmed = []
+          info.forEach(element=>{
+            var dd = String(element.date.getDate()).padStart(2, '0');
+            var mm = String(element.date.getMonth() + 1).padStart(2, '0');
+            dates.push(dd+"-"+mm)
+            confirmed.push(element.confirmed)
+          })
 
+      res
+        .status(200)
+        .json({"dates" : dates.reverse(), "confirmed": confirmed.reverse()});        
+
+    });
   };
   const getDeathsByDaysFromCountry = (req,res) =>{
+    res.header('Access-Control-Allow-Origin', '*');
+    countries_summary_model
+    .find({country_iso2s: req.params.iso})
+    .sort({date:-1})
+    .limit(15)
+    .exec((err, info) => {
+      if (info.length == 0) {
+        return res
+          .status(404)
+          .json({
+            "message": "can't retrieve info from country "+req.params.iso });
+          }
+          var dates = []
+          var deaths = []
+          info.forEach(element=>{
+            var dd = String(element.date.getDate()).padStart(2, '0');
+            var mm = String(element.date.getMonth() + 1).padStart(2, '0');
+            dates.push(dd+"-"+mm)
+            deaths.push(element.deaths)
+          })
 
+      res
+        .status(200)
+        .json({"dates" : dates.reverse(), "deaths": deaths.reverse()});
+    });  
   };
-  const getRecoveredByDaysFromCountry = (req,res) =>{
 
+  const getRecoveredByDaysFromCountry = (req,res) =>{
+    res.header('Access-Control-Allow-Origin', '*');
+    countries_summary_model
+    .find({country_iso2s: req.params.iso})
+    .sort({date:-1})
+    .limit(15)
+    .exec((err, info) => {
+      if (info.length == 0) {
+        return res
+          .status(404)
+          .json({
+            "message": "can't retrieve info from country "+req.params.iso });
+          }
+          var dates = []
+          var recovered = []
+          info.forEach(element=>{
+            var dd = String(element.date.getDate()).padStart(2, '0');
+            var mm = String(element.date.getMonth() + 1).padStart(2, '0');
+            dates.push(dd+"-"+mm)
+            recovered.push(element.recovered)
+          })
+
+      res
+        .status(200)
+        .json({"dates" : dates.reverse(), "recovered": recovered.reverse()});
+    });
   };
 
   //Global
@@ -112,7 +187,6 @@ const metadata_model = mongoose.model('MetaDataModel');
       country.forEach(element=>{
         total+=element.population === undefined? 0: element.population
       })
-      console.log("pop = ",total)
       res
         .status(200)
         .json({"population" : total});        
@@ -259,202 +333,3 @@ const metadata_model = mongoose.model('MetaDataModel');
     getGlobalDeathsByDays,
     getGlobalDataByCountries
   }
-
-
-
-  /*
-
-  const readSummaryCountry = (req, res) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    countries_summary_model
-    .find({country: req.params.country})
-    .exec((err, location) => {
-      if (!location) {
-        return res
-          .status(404)
-          .json({
-            "message": "location not found" });
-          } else if (err) {
-            return res
-                .status(404)
-                .json(err);
-          }
-      res
-        .status(200)
-        .json(location);
-    });
-  };
-
-  const readGlobalDeaths = (req, res) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    metadata_model
-      .find({})
-      .exec((err, metadata) => {
-        if (!metadata) {
-          return res
-            .status(404)
-            .json({
-              "message": "No hay datos"
-            });
-        } else if (err) {
-          return res
-            .status(404)
-            .json(err);
-        }
-        console.log(metadata[0].last_date);
-        countries_summary_model.
-        find({
-            date: metadata[0].last_date
-          })
-          .exec((err, summary) => {
-            if (!summary) {
-              return res
-                .status(404)
-                .json({
-                  "message": "location not found"
-                });
-            } else if (err) {
-              return res
-                .status(404)
-                .json(err);
-            }
-            var muertos = summary.reduce(function(suma,elemento){
-              return suma + elemento.deaths;
-            },0);
-            res
-              .status(200)
-              .json({"deaths" : muertos});
-  
-          });
-      });
-  };
-
-  const readGlobalConfirmed = (req, res) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    metadata_model
-      .find({})
-      .exec((err, metadata) => {
-        if (!metadata) {
-          return res
-            .status(404)
-            .json({
-              "message": "No hay datos"
-            });
-        } else if (err) {
-          return res
-            .status(404)
-            .json(err);
-        }
-        console.log(metadata[0].last_date);
-        countries_summary_model.
-        find({
-            date: metadata[0].last_date
-          })
-          .exec((err, summary) => {
-            if (!summary) {
-              return res
-                .status(404)
-                .json({
-                  "message": "location not found"
-                });
-            } else if (err) {
-              return res
-                .status(404)
-                .json(err);
-            }
-            var infectados = summary.reduce(function(suma,elemento){
-              return suma + elemento.confirmed;
-            },0);
-            res
-              .status(200)
-              .json({"confirmed" : infectados});
-  
-          });
-      });
-  };
-
-  const readGlobalRecovered = (req, res) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    metadata_model
-      .find({})
-      .exec((err, metadata) => {
-        if (!metadata) {
-          return res
-            .status(404)
-            .json({
-              "message": "No hay datos"
-            });
-        } else if (err) {
-          return res
-            .status(404)
-            .json(err);
-        }
-        console.log(metadata[0].last_date);
-        countries_summary_model.
-        find({
-            date: metadata[0].last_date
-          })
-          .exec((err, summary) => {
-            if (!summary) {
-              return res
-                .status(404)
-                .json({
-                  "message": "location not found"
-                });
-            } else if (err) {
-              return res
-                .status(404)
-                .json(err);
-            }
-            var recuperados = summary.reduce(function(suma,elemento){
-              return suma + elemento.recovered;
-            },0);
-            res
-              .status(200)
-              .json({"recovered" : recuperados});
-  
-          });
-      });
-  };
-
-  const readGlobalSummary = (req, res) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    metadata_model
-      .find({})
-      .exec((err, metadata) => {
-        if (!metadata) {
-          return res
-            .status(404)
-            .json({
-              "message": "No hay datos"
-            });
-        } else if (err) {
-          return res
-            .status(404)
-            .json(err);
-        }
-        console.log(metadata[0].last_date);
-        countries_summary_model.
-        find({
-            date: metadata[0].last_date
-          })
-          .exec((err, summary) => {
-            if (!summary) {
-              return res
-                .status(404)
-                .json({
-                  "message": "location not found"
-                });
-            } else if (err) {
-              return res
-                .status(404)
-                .json(err);
-            }
-            res
-              .status(200)
-              .json(summary);
-  
-          });
-      });
-  };
-  */

@@ -145,24 +145,28 @@
                   <p> Area: {{current_country.area}}</p>
                   <p> Population: {{current_country.population}}</p>
                   <p> Native name: {{current_country.nativeName}}</p>
+                  <p> Population density: {{current_country.populationDensity}} pop/km2</p>
                 </md-card-content>
               </md-card>
             </div>
             <!-- Abajo -->
             <div class="md-layout-item md-medium-size-100 md-xsmall-size-100 md-size-33" >
-              <chart-card
-                :chart="dailyConfirmed"
-                data-background-color="blue"
-                :key="dailyConfirmed.country"
-              >
+              <daily-chart 
+              :chart = dailyConfirmed
+              :key="dailyConfirmed.country">
                 <template slot="content">
                   <h4 class="title">Casos confirmados</h4>
                   <p class="category">
-                    <!-- TODO: coger el aumento respecto al día anterior y si es >0% ponerlo rojo, sino ponerlo verde-->
-                    <span class="text-success"
-                      ><i class="fas fa-long-arrow-alt-up"></i> 55%
+                    <span class="text-success">
+                      <i class="fas fa-long-arrow-alt-up"></i> {{current_country.dailyConfirmedImprove.day}}%
                     </span>
-                    increase in today sales.
+                    increase in last day.
+                  </p>
+                  <p class="category">
+                    <span class="text-success">
+                      <i class="fas fa-long-arrow-alt-up"></i> {{current_country.dailyConfirmedImprove.month}}%
+                    </span>
+                    increase in last 15 days.
                   </p>
                 </template>
 
@@ -172,59 +176,63 @@
                     Datos a {{ timestamp }}
                   </div>
                 </template>
-              </chart-card>
+              </daily-chart>
             </div>
             <div class="md-layout-item md-medium-size-100 md-xsmall-size-100 md-size-33" >
-              <chart-card
-                :chart-data="dailyRecovered.data"
-                :chart-options="dailyRecovered.options"
-                :chart-type="'Line'"
-                data-background-color="green"
-              >
-                <template slot="content">
-                  <h4 class="title">Personas curadas</h4>
-                  <p class="category">
-                    <!-- TODO: coger el aumento respecto al día anterior y si es >0% ponerlo rojo, sino ponerlo verde-->
-                    <span class="text-success"
-                      ><i class="fas fa-long-arrow-alt-up"></i> 55%
+              <daily-chart 
+                :chart = dailyRecovered
+                :key="dailyRecovered.country">
+                  <template slot="content">
+                    <h4 class="title">Personas curadas</h4>
+                    <p class="category">
+                    <span class="text-success">
+                      <i class="fas fa-long-arrow-alt-up"></i> {{current_country.dailyRecoverImprove.day}}%
                     </span>
-                    increase in today sales.
+                    increase in last day.
                   </p>
-                </template>
+                  <p class="category">
+                    <span class="text-success">
+                      <i class="fas fa-long-arrow-alt-up"></i> {{current_country.dailyRecoverImprove.month}}%
+                    </span>
+                    increase in last 15 days.
+                  </p>
+                  </template>
 
-                <template slot="footer">
-                  <div class="stats">
-                    <md-icon>access_time</md-icon>
-                    Datos a {{ timestamp }}
-                  </div>
-                </template>
-              </chart-card>
+                  <template slot="footer">
+                    <div class="stats">
+                      <md-icon>access_time</md-icon>
+                      Datos a {{ timestamp }}
+                    </div>
+                  </template>
+              </daily-chart>
             </div>
             <div class="md-layout-item md-medium-size-100 md-xsmall-size-100 md-size-33" >
-              <chart-card
-                :chart-data="dailyDeaths.data"
-                :chart-options="dailyDeaths.options"
-                :chart-type="'Line'"
-                data-background-color="red"
-              >
-                <template slot="content">
-                  <h4 class="title">Personas fallecidas</h4>
-                  <p class="category">
-                    <!-- TODO: coger el aumento respecto al día anterior y si es >0% ponerlo rojo, sino ponerlo verde-->
-                    <span class="text-success"
-                      ><i class="fas fa-long-arrow-alt-up"></i> 55%
+              <daily-chart 
+                :chart = dailyDeaths
+                :key="dailyDeaths.country">
+                  <template slot="content">
+                    <h4 class="title">Personas fallecidas</h4>
+                    <p class="category">
+                    <span class="text-success">
+                      <i class="fas fa-long-arrow-alt-up"></i> {{current_country.dailyDeathsImprove.day}}%
                     </span>
-                    increase in today sales.
+                    increase in last day.
                   </p>
-                </template>
+                  <p class="category">
+                    <span class="text-success">
+                      <i class="fas fa-long-arrow-alt-up"></i> {{current_country.dailyDeathsImprove.month}}%
+                    </span>
+                    increase in last 15 days.
+                  </p>
+                  </template>
 
-                <template slot="footer">
-                  <div class="stats">
-                    <md-icon>access_time</md-icon>
-                    Datos a {{ timestamp }}
-                  </div>
-                </template>
-              </chart-card>
+                  <template slot="footer">
+                    <div class="stats">
+                      <md-icon>access_time</md-icon>
+                      Datos a {{ timestamp }}
+                    </div>
+                  </template>
+              </daily-chart>
             </div>
           </div>
         </div>
@@ -237,17 +245,19 @@
 import countries from "../countries.json"
 import axios from 'axios'
 import { GChart } from 'vue-google-charts'
+import dailyChart from '../components/Charts/DailyChart' 
 
 import {
   StatsCard,
-  ChartCard,
+  //ChartCard,
 } from "@/components";
 
 export default {
-    components: {
+  components: {
     StatsCard,
-    ChartCard,
-    GChart
+    //ChartCard,
+    GChart,
+    dailyChart
   },
   props: {
     imgLogo: {
@@ -271,7 +281,20 @@ export default {
         population: 0,
         confirmed: 0,
         recovered:0,
-        deaths:0
+        deaths:0,
+        dailyRecoverImprove: {
+          day: 0,
+          month:0
+        },
+        dailyDeathsImprove: {
+          day: 0,
+          month:0
+        },
+        dailyConfirmedImprove: {
+          day: 0,
+          month:0
+        },
+        populationDensity: 0,
       },
       dailyConfirmed: {
         country: "",
@@ -279,19 +302,7 @@ export default {
           labels: [],
           series: [],
         },
-        options: {
-          lineSmooth: this.$Chartist.Interpolation.cardinal({
-            tension: 0
-          }),
-          low: 0,
-          high: 11,
-          chartPadding: {
-            top: 0,
-            right: 0,
-            bottom: 0,
-            left: 0
-          }
-        }
+        title:"Confirmados"
       },
       dailyRecovered: {
         country: "",
@@ -299,19 +310,7 @@ export default {
           labels: [],
           series: [],
         },
-        options: {
-          lineSmooth: this.$Chartist.Interpolation.cardinal({
-            tension: 0
-          }),
-          low: 0,
-          high: 11,
-          chartPadding: {
-            top: 0,
-            right: 0,
-            bottom: 0,
-            left: 0
-          }
-        }
+        title:"Recuperados"
       },
       dailyDeaths: {
         country: "",
@@ -319,29 +318,17 @@ export default {
           labels: [],
           series: [],
         },
-        options: {
-          lineSmooth: this.$Chartist.Interpolation.cardinal({
-            tension: 0
-          }),
-          low: 0,
-          high: 11,
-          chartPadding: {
-            top: 0,
-            right: 0,
-            bottom: 0,
-            left: 0
-          }
-        }
+        title:"Fallecidos"
       },
       chartData: [
           ['Country','Confirmed', 'Deaths'],
           [ 'ES', 0,0]
         ],
-        chartOptions:{
+      chartOptions:{
           region:'ES',
           legend:'none',
           backgroundColor: '#81d4fa',
-          }
+        }
         //opción vacía o region:'world' muestra el mapa entero: con region:'ISO' muestra la zona
     };
   },
@@ -359,25 +346,17 @@ export default {
         this.current_country.nativeName = "N/A";
         this.current_country.flag = "https://i.gyazo.com/1e421019d67c4b8d1258652413d00e3a.png"
         //"@/assets/img/earth-icon.png"; //"https://i.gyazo.com/1e421019d67c4b8d1258652413d00e3a.png"
-/*
-        //PARA ACTUALIZAR LAS TABLAS HACERLO ASÍ
-        var newObj = {
-          labels: ["M", "T", "W", "T", "F", "S", "S"],
-          series: [[23, 4, 32, 3445, 33, 18, 4]],
-        };
-        this.dailyConfirmed.data = newObj;
-        this.dailyConfirmed.options.high = Math.max(newObj.series+10)
-        this.dailyConfirmed.country = "Global"
 
-*/
         //Población total
         axios.get('http://localhost:4000/covid/global/population')
         .then(response=> {
-          console.log("population = ",response.data.population)
           self.current_country.population = response.data.population;
+          //Densidad de población
+          self.current_country.populationDensity = (response.data.population/148900000).toFixed(2)
         }).catch(e=>{
           console.log("error = ",e);
           self.current_country.population = 0;
+          self.current_country.populationDensity = 0;
         })
 
         //Confirmados
@@ -453,7 +432,86 @@ export default {
           })
         }))
         
+        //Por días
+        //Confirmados
+        axios.get('http://localhost:4000/covid/confirmed-bydays/'+country.Code)
+        .then(response=> {
+          self.dailyConfirmed.data.labels = response.data.dates;
+          self.dailyConfirmed.data.series = response.data.confirmed;
+          self.dailyConfirmed.country = country.Code
 
+          if(response.data.confirmed.length > 2){
+            //Calcular mejora porcentual
+            //Último día
+            var lastTwo = response.data.confirmed.slice((response.data.confirmed.length - 2), response.data.confirmed.length)
+            var improve = ((lastTwo[1]-lastTwo[0])/lastTwo[1])*100
+            self.current_country.dailyConfirmedImprove.day = improve.toFixed(2)
+            //Últimos 15 días
+            var aux = response.data.confirmed
+            improve = 0
+            improve = ((aux[aux.length-1]-aux[0])/aux[aux.length-1])*100
+            self.current_country.dailyConfirmedImprove.month = improve.toFixed(2)
+          }else{
+            self.current_country.dailyConfirmedImprove.day = 0;
+            self.current_country.dailyConfirmedImprove.month = 0;
+          }
+        }).catch(_=>{
+          self.dailyConfirmed.data.labels = [];
+          self.dailyConfirmed.data.series = [];
+          self.dailyConfirmed.country = country.Code
+        })
+        //Curados
+        axios.get('http://localhost:4000/covid/recover-bydays/'+country.Code)
+        .then(response=> {
+          self.dailyRecovered.data.labels = response.data.dates;
+          self.dailyRecovered.data.series = response.data.recovered;
+          self.dailyRecovered.country = country.Code
+          if(response.data.recovered.length > 2){
+            //Calcular mejora porcentual
+            //Último día
+            var lastTwo = response.data.recovered.slice((response.data.recovered.length - 2), response.data.recovered.length)
+            var improve = ((lastTwo[1]-lastTwo[0])/lastTwo[1])*100
+            self.current_country.dailyRecoverImprove.day = improve.toFixed(2)
+            //Últimos 15 días
+            var aux = response.data.recovered
+            improve = 0
+            improve = ((aux[aux.length-1]-aux[0])/aux[aux.length-1])*100
+            self.current_country.dailyRecoverImprove.month = improve.toFixed(2)
+          }else{
+            self.current_country.dailyRecoverImprove.day = 0;
+            self.current_country.dailyRecoverImprove.month = 0;
+          }
+        }).catch(_=>{
+          self.dailyRecovered.data.labels = [];
+          self.dailyRecovered.data.series = [];
+          self.dailyRecovered.country = country.Code
+        })
+        //Fallecidos
+        axios.get('http://localhost:4000/covid/dead-bydays/'+country.Code)
+        .then(response=> {
+          self.dailyDeaths.data.labels = response.data.dates;
+          self.dailyDeaths.data.series = response.data.deaths;
+          self.dailyDeaths.country = country.Code
+          if(response.data.deaths.length > 2){
+            //Calcular mejora porcentual
+            //Último día
+            var lastTwo = response.data.deaths.slice((response.data.deaths.length - 2), response.data.deaths.length)
+            var improve = ((lastTwo[1]-lastTwo[0])/lastTwo[1])*100
+            self.current_country.dailyDeathsImprove.day = improve.toFixed(2)
+            //Últimos 15 días
+            var aux = response.data.deaths
+            improve = 0
+            improve = ((aux[aux.length-1]-aux[0])/aux[aux.length-1])*100
+            self.current_country.dailyDeathsImprove.month = improve.toFixed(2)
+          }else{
+            self.current_country.dailyDeathsImprove.day = 0;
+            self.current_country.dailyDeathsImprove.month = 0;
+          }
+        }).catch(_=>{
+          self.dailyDeaths.data.labels = [];
+          self.dailyDeaths.data.series = [];
+          self.dailyDeaths.country = country.Code
+        })
         //Esperar al array de promesas
         Promise.all(promises).then(_=>{
           this.chartData[1][0] = country.Code;
@@ -495,8 +553,14 @@ export default {
           self.current_country.capital = response.data.capital;
           //Nombre nativo
           self.current_country.nativeName = response.data.nativeName;
+          //Densidad de población
+          self.current_country.populationDensity = (response.data.population/response.data.area).toFixed(2)
         }).catch(_=>{
           self.current_country.continent = "";
+          self.current_country.area = "0 km2";
+          self.current_country.capital = "";
+          self.current_country.nativeName = "";
+          self.current_country.populationDensity = ""
         })
       
     }
