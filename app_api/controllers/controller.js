@@ -34,7 +34,7 @@ const metadata_model = mongoose.model('MetaDataModel');
         return res
           .status(404)
           .json({
-            "message": "country not found" });
+            "message": "ISO "+req.params.iso+" has not any associated country" });
           }
       res
         .status(200)
@@ -53,7 +53,7 @@ const metadata_model = mongoose.model('MetaDataModel');
         return res
           .status(404)
           .json({
-            "message": "country not found" });
+            "message": "ISO "+req.params.iso+" has not any associated country" });
           }
       res
         .status(200)
@@ -72,7 +72,7 @@ const metadata_model = mongoose.model('MetaDataModel');
         return res
           .status(404)
           .json({
-            "message": "country not found" });
+            "message": "ISO "+req.params.iso+" has not any associated country" });
           }
       res
         .status(200)
