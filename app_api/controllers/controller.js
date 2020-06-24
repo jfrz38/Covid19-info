@@ -120,9 +120,6 @@ const metadata_model = mongoose.model('MetaDataModel');
             .json({
               "message": "Can't retrieve data by days for "+req.params.iso });
         }
-        result[0].dates.forEach(element=>{
-
-        })
         res
           .status(200)
           .json({"dates" : result[0].dates.reverse(), "confirmed": result[0].confirmed.reverse()});
@@ -221,26 +218,33 @@ const metadata_model = mongoose.model('MetaDataModel');
   const getGlobalPopulation = (req,res)=>{
     res.header('Access-Control-Allow-Origin', '*');
     getLastDateFromDB().then(date=>{
+      const agg = [
+        {
+          '$match': {
+            'date': date
+          }
+        }, {
+          '$group': {
+            '_id': null, 
+            'totalPopulation': {
+              '$sum': '$population'
+            }
+          }
+        }
+      ];
       countries_summary_model
-      .find({date:date})
-      .exec((err, country) => {
-        if (country.length == 0) {
+      .aggregate(agg, (err, result)=>{
+        if(result.length == 0){
           return res
             .status(404)
             .json({
-              "message": "country not found" });
+              "message": "Can't retrieve global population" });
         }
-        var total = 0
-        country.forEach(element=>{
-          total+=element.population === undefined? 0: element.population
-        })
         res
           .status(200)
-          .json({"population" : total});        
-
-      });
+          .json({"population" : result[0].totalPopulation});  
+      })
     })
-    
   }
 
   //Total
