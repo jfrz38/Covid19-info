@@ -246,6 +246,7 @@ import countries from "../countries.json"
 import axios from 'axios'
 import { GChart } from 'vue-google-charts'
 import dailyChart from '../components/Charts/DailyChart' 
+import https from 'https';
 
 import {
   StatsCard,
@@ -331,11 +332,19 @@ export default {
           region:'world',
           legend:'none',
           backgroundColor: '#81d4fa',
+      },
+      apiConfig: {
+          headers: {Authorization: ""}
         }
-        //opción vacía o region:'world' muestra el mapa entero: con region:'ISO' muestra la zona
     };
   },
   methods:{
+    async callJWT(){
+      var token = await axios.get("http://localhost:4000/")
+      if(token){
+        this.apiConfig.headers.Authorization = 'Bearer '.concat(token.data.token);
+      }
+    },
     countrySelected(country){
       var self = this
       //Llamar a la api y coger datos del país seleccionado
@@ -351,19 +360,19 @@ export default {
         //"@/assets/img/earth-icon.png"; //"https://i.gyazo.com/1e421019d67c4b8d1258652413d00e3a.png"
 
         //Población total
-        axios.get('http://localhost:4000/covid/global/population')
+        axios.get('http://localhost:4000/covid/global/population',this.apiConfig)
         .then(response=> {
-          self.current_country.population = response.data.population;
-          //Densidad de población
-          self.current_country.populationDensity = (response.data.population/148900000).toFixed(2)
-        }).catch(e=>{
-          console.log("error = ",e);
-          self.current_country.population = 0;
-          self.current_country.populationDensity = 0;
-        })
+            self.current_country.population = response.data.population;
+            //Densidad de población
+            self.current_country.populationDensity = (response.data.population/148900000).toFixed(2)
+          }).catch(e=>{
+            console.log("error = ",e);
+            self.current_country.population = 0;
+            self.current_country.populationDensity = 0;
+          })
 
         //Confirmados
-        axios.get('http://localhost:4000/covid/global/confirmed')
+        axios.get('http://localhost:4000/covid/global/confirmed',this.apiConfig)
         .then(response=> {
           self.current_country.confirmed = response.data.confirmed;
         }).catch(e=>{
@@ -371,7 +380,7 @@ export default {
           self.current_country.confirmed = 0;
         })
         //Recuperados
-        axios.get('http://localhost:4000/covid/global/recovered')
+        axios.get('http://localhost:4000/covid/global/recovered',this.apiConfig)
         .then(response=> {
           self.current_country.recovered = response.data.recovered;
         }).catch(e=>{
@@ -379,7 +388,7 @@ export default {
           self.current_country.recovered = 0;
         })
         //Muertos
-        axios.get('http://localhost:4000/covid/global/deaths')
+        axios.get('http://localhost:4000/covid/global/deaths',this.apiConfig)
         .then(response=> {
           self.current_country.deaths = response.data.deaths;
         }).catch(e=>{
@@ -388,7 +397,7 @@ export default {
         })
 
         //Datos del mapa
-        axios.get('http://localhost:4000/covid/global/countries-data')
+        axios.get('http://localhost:4000/covid/global/countries-data',this.apiConfig)
         .then(response=> {
           self.chartData =[['Country','Confirmed', 'Deaths']]
           response.data.data.forEach(element => {
@@ -402,7 +411,7 @@ export default {
         //Datos por días
 
         //Confirmados
-        axios.get('http://localhost:4000/covid/global/confirmed-bydays')
+        axios.get('http://localhost:4000/covid/global/confirmed-bydays',this.apiConfig)
         .then(response=> {
           self.dailyConfirmed.data.labels = response.data.dates;
           self.dailyConfirmed.data.series = response.data.confirmed;
@@ -431,7 +440,7 @@ export default {
           self.current_country.dailyConfirmedImprove.month = 0;
         })
         //Curados
-        axios.get('http://localhost:4000/covid/global/recover-bydays')
+        axios.get('http://localhost:4000/covid/global/recover-bydays',this.apiConfig)
         .then(response=> {
           self.dailyRecovered.data.labels = response.data.dates;
           self.dailyRecovered.data.series = response.data.recovered;
@@ -459,7 +468,7 @@ export default {
           self.current_country.dailyRecoverImprove.month = 0;
         })
         //Fallecidos
-        axios.get('http://localhost:4000/covid/global/dead-bydays')
+        axios.get('http://localhost:4000/covid/global/dead-bydays',this.apiConfig)
         .then(response=> {
           self.dailyDeaths.data.labels = response.data.dates;
           self.dailyDeaths.data.series = response.data.deaths;
@@ -493,7 +502,7 @@ export default {
         this.chartData = [['Country','Confirmed', 'Deaths'],[ '', 0,0]]
         promises.push(new Promise(resolve=>{
           //Confirmados
-          axios.get('http://localhost:4000/covid/confirmed-people/'+country.Code)
+          axios.get('http://localhost:4000/covid/confirmed-people/'+country.Code,this.apiConfig)
           .then(response=> {
             self.current_country.confirmed = response.data.confirmed;
             resolve(true)
@@ -504,7 +513,7 @@ export default {
         }))
         
         //Curados
-        axios.get('http://localhost:4000/covid/recover-people/'+country.Code)
+        axios.get('http://localhost:4000/covid/recover-people/'+country.Code,this.apiConfig)
         .then(response=> {
           self.current_country.recovered = response.data.recovered;
         }).catch(_=>{
@@ -513,7 +522,7 @@ export default {
 
         promises.push(new Promise(resolve=>{
           //Fallecidos
-          axios.get('http://localhost:4000/covid/dead-people/'+country.Code)
+          axios.get('http://localhost:4000/covid/dead-people/'+country.Code,this.apiConfig)
           .then(response=> {
             self.current_country.deaths = response.data.deaths;
             resolve(true)
@@ -525,7 +534,7 @@ export default {
         
         //Por días
         //Confirmados
-        axios.get('http://localhost:4000/covid/confirmed-bydays/'+country.Code)
+        axios.get('http://localhost:4000/covid/confirmed-bydays/'+country.Code,this.apiConfig)
         .then(response=> {
           self.dailyConfirmed.data.labels = response.data.dates;
           self.dailyConfirmed.data.series = response.data.confirmed;
@@ -554,7 +563,7 @@ export default {
           self.current_country.dailyConfirmedImprove.month = 0;
         })
         //Curados
-        axios.get('http://localhost:4000/covid/recover-bydays/'+country.Code)
+        axios.get('http://localhost:4000/covid/recover-bydays/'+country.Code,this.apiConfig)
         .then(response=> {
           self.dailyRecovered.data.labels = response.data.dates;
           self.dailyRecovered.data.series = response.data.recovered;
@@ -582,7 +591,7 @@ export default {
           self.current_country.dailyRecoverImprove.month = 0;
         })
         //Fallecidos
-        axios.get('http://localhost:4000/covid/dead-bydays/'+country.Code)
+        axios.get('http://localhost:4000/covid/dead-bydays/'+country.Code,this.apiConfig)
         .then(response=> {
           self.dailyDeaths.data.labels = response.data.dates;
           self.dailyDeaths.data.series = response.data.deaths;
@@ -620,7 +629,7 @@ export default {
       }
     },
     getDay(){
-      axios.get('http://localhost:4000/covid/info/last-date')
+      axios.get('http://localhost:4000/covid/info/last-date',this.apiConfig)
         .then(response=> {
           this.timestamp = response.data.last_date
       }).catch(_=>{
@@ -638,7 +647,7 @@ export default {
       this.current_country.flag = "https://www.countryflags.io/"+(country.Code).toLowerCase()+"/flat/64.png";
       
       //Población
-      axios.get('http://localhost:4000/covid/population/'+country.Code)
+      axios.get('http://localhost:4000/covid/population/'+country.Code,this.apiConfig)
         .then(response=> {
           self.current_country.population = response.data.population;
         }).catch(_=>{
@@ -668,11 +677,14 @@ export default {
       
     }
   },created(){
-    this.getDay();
-    this.total_countries = countries;
-    this.total_countries.unshift({Name:"Global",Code:""});
-    //Por defecto muestra Global
-    this.countrySelected({Name:"Global",Code:""});
+    this.callJWT().then(_=>{
+      this.getDay();
+      this.total_countries = countries;
+      this.total_countries.unshift({Name:"Global",Code:""});
+      //Por defecto muestra Global
+      this.countrySelected({Name:"Global",Code:""});
+    })
+    
   }
 };
 </script>

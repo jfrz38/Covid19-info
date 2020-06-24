@@ -1,10 +1,18 @@
-const createError = require('http-errors');
+//const createError = require('http-errors');
 const express = require('express');
-const path = require('path');
+//const path = require('path');
 //const cookieParser = require('cookie-parser');
-const logger = require('morgan');
+//const logger = require('morgan');
 //const favicon = require('serve-favicon');
-//const cors = require('cors');
+//cors
+const cors = require('cors')
+const corsOptions = {
+    origin: true,
+    credentials: true
+}
+//app
+const app = express();
+app.options('*', cors(corsOptions));
 
 require('./app_api/models/db');
 
@@ -13,9 +21,10 @@ require('./app_api/models/db');
 //const usersRouter = require('./app_server/routes/users');
 const apiRouter = require('./app_api/routes/index');
 
-const app = express();
-app.use("/",apiRouter)
 
+  
+
+app.use("/",apiRouter)
 
 var swaggerUi = require('swagger-ui-express'),
     swaggerDocument = require('./swagger.json');
