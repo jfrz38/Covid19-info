@@ -44,14 +44,13 @@
                 </template>
 
                 <template slot="content">
-                  <p class="category">País</p>
+                  <p class="category">Country</p>
                   <h3 class="title">{{current_country.name}}</h3>
                 </template>
 
                 <template slot="footer">
                   <div class="stats">
-                    <md-icon>date_range</md-icon>
-                    Datos a {{ timestamp }}
+                    <md-icon style="color: transparent">date_range</md-icon>
                   </div>
                 </template>
               </stats-card>
@@ -63,14 +62,14 @@
                 </template>
 
                 <template slot="content">
-                  <p class="category">Confirmados</p>
+                  <p class="category">Confirmed</p>
                   <h3 class="title"> {{current_country.confirmed}} </h3>
                 </template>
 
                 <template slot="footer">
                   <div class="stats">
                     <md-icon>date_range</md-icon>
-                    Datos a {{ timestamp }}
+                    {{ timestamp }}
                   </div>
                 </template>
               </stats-card>
@@ -82,14 +81,14 @@
                 </template>
 
                 <template slot="content">
-                  <p class="category">Curados</p>
+                  <p class="category">Recovered</p>
                   <h3 class="title">{{current_country.recovered}}</h3>
                 </template>
 
                 <template slot="footer">
                   <div class="stats">
                     <md-icon>date_range</md-icon>
-                    Datos a {{ timestamp }}
+                    {{ timestamp }}
                   </div>
                 </template>
               </stats-card>
@@ -101,14 +100,14 @@
                 </template>
 
                 <template slot="content">
-                  <p class="category">Fallecidos</p>
+                  <p class="category">Deaths</p>
                   <h3 class="title">{{current_country.deaths}}</h3>
                 </template>
 
                 <template slot="footer">
                   <div class="stats">
                     <md-icon>date_range</md-icon>
-                    Datos a {{ timestamp }}
+                    {{ timestamp }}
                   </div>
                 </template>
               </stats-card>
@@ -118,7 +117,7 @@
             <div class="md-layout-item md-medium-size-100 md-xsmall-size-100 md-size-75" >
               <md-card>
                 <md-card-header data-background-color="orange">
-                  <h4 class="title">Mapa mundial</h4>
+                  <h4 class="title">Map</h4>
                 </md-card-header>
                 <md-card-content>
                   
@@ -137,7 +136,7 @@
             <div class="md-layout-item md-medium-size-100 md-xsmall-size-100 md-size-25" >
               <md-card>
                 <md-card-header data-background-color="orange">
-                  <h4 class="title">Datos</h4>
+                  <h4 class="title">Data</h4>
                 </md-card-header>
                 <md-card-content>
                   <p> Capital: {{current_country.capital}}</p>
@@ -155,7 +154,7 @@
               :chart = dailyConfirmed
               :key="dailyConfirmed.country">
                 <template slot="content">
-                  <h4 class="title">Casos confirmados</h4>
+                  <h4 class="title">Confirmed cases</h4>
                   <p class="category">
                     <span style="color:#5dade2">
                       <i class="fas fa-long-arrow-alt-up"></i> {{current_country.dailyConfirmedImprove.day}}%
@@ -173,7 +172,7 @@
                 <template slot="footer">
                   <div class="stats">
                     <md-icon>access_time</md-icon>
-                    Datos a {{ timestamp }}
+                    {{ timestamp }}
                   </div>
                 </template>
               </daily-chart>
@@ -183,7 +182,7 @@
                 :chart = dailyRecovered
                 :key="dailyRecovered.country">
                   <template slot="content">
-                    <h4 class="title">Personas curadas</h4>
+                    <h4 class="title">Recovered persons</h4>
                     <p class="category">
                     <span class="text-success">
                       <i class="fas fa-long-arrow-alt-up"></i> {{current_country.dailyRecoverImprove.day}}%
@@ -201,7 +200,7 @@
                   <template slot="footer">
                     <div class="stats">
                       <md-icon>access_time</md-icon>
-                      Datos a {{ timestamp }}
+                      {{ timestamp }}
                     </div>
                   </template>
               </daily-chart>
@@ -211,7 +210,7 @@
                 :chart = dailyDeaths
                 :key="dailyDeaths.country">
                   <template slot="content">
-                    <h4 class="title">Personas fallecidas</h4>
+                    <h4 class="title">Deaths persons</h4>
                     <p class="category">
                     <span style="color:#e74c3c">
                       <i class="fas fa-long-arrow-alt-up"></i> {{current_country.dailyDeathsImprove.day}}%
@@ -229,7 +228,7 @@
                   <template slot="footer">
                     <div class="stats">
                       <md-icon>access_time</md-icon>
-                      Datos a {{ timestamp }}
+                      {{ timestamp }}
                     </div>
                   </template>
               </daily-chart>
@@ -303,7 +302,7 @@ export default {
           labels: [],
           series: [],
         },
-        title:"Confirmados",
+        title:"Confirmed",
         color:"#5dade2"
       },
       dailyRecovered: {
@@ -312,7 +311,7 @@ export default {
           labels: [],
           series: [],
         },
-        title:"Recuperados",
+        title:"Recovered",
         color: "#2ecc71"
       },
       dailyDeaths: {
@@ -321,7 +320,7 @@ export default {
           labels: [],
           series: [],
         },
-        title:"Fallecidos",
+        title:"Deaths",
         color: "#e74c3c"
       },
       chartData: [
