@@ -335,7 +335,7 @@ export default {
       },
       apiConfig: {
           headers: {Authorization: ""}
-        }
+      }
     };
   },
   methods:{

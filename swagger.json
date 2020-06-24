@@ -1,321 +1,801 @@
 {
-    "swagger": "2.0",
-    "info": {
-      "version": "1.0.0",
-      "title": "COVID-19 API INFORMATION FROM JOHNS HOPKINS UNIVERSITY DATA",
-      "description": "Node.js  API to extract data related to Covid-19 from Johns Hopkins University "
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "COVID-19 API - TRWM",
+    "termsOfService": "http://swagger.io/terms",
+    "contact": {
+      "email": "jrz899@inlumine.ual.es"
     },
-    "host": "localhost:4000",
-    "basePath": "/",
-    "tags": [
-      {
-        "name": "Countries",
-        "description": "API for stats countries in the system"
-      }
-    ],
-    "schemes": [
-      "http"
-    ],
-    "consumes": [
-      "application/json"
-    ],
-    "produces": [
-      "application/json"
-    ],
-    "paths": {
-      "/covid/country/{country}": {
-        "parameters": [
-          {
-            "name": "country",
-            "in": "path",
-            "required": true,
-            "description": "Name in english of the country with the first capital letter",
-            "type": "string"
-          }
+    "description": "API to get Covid-19 information from Johns Hopkins University "
+  },
+  "host": "localhost:4000",
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "Auth data",
+      "description": "Operation to get token"
+    },
+    {
+      "name": "Country data",
+      "description": "Retrieve data from a single country"
+    },
+    {
+      "name": "Global data",
+      "description": "Retrieve global data"
+    },
+    {
+      "name": "Info data",
+      "description": "Retrieve info from metadata table"
+    }
+  ],
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "securityDefinitions": {
+    "JWT": {
+      "type": "apiKey",
+      "in": "header",
+      "name": "Authorization"
+    }
+  },
+  "security": [
+    {
+      "JWT": []
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "tags": [
+          "Auth data"
         ],
-        "get": {
-          "tags": [
-            "Countries"
-          ],
-          "summary": "Get all the information of a country",
-          "responses": {
-            "200": {
-              "description": "Country is found",
-              "schema": {
-                "$ref": "#/definitions/Countries"
-              }
-            },
-            "404": {
-                "description": "Country not found",
-                "schema": {
-                    "$ref": "#/definitions/Error"
-                  }
-            }
-          }
-        }
-      },
-      "/covid/confirmed/{country}": {
-        "parameters": [
-          {
-            "name": "country",
-            "in": "path",
-            "required": true,
-            "description": "Name in english of the country with the first capital letter",
-            "type": "string"
-          }
-        ],
-        "get": {
-          "tags": [
-            "Countries"
-          ],
-          "summary": "Get the number of confirmed cases of a country on the current date",
-          "responses": {
-            "200": {
-              "description": "Country is found",
-              "schema": {
-                "$ref": "#/definitions/Confirmed"
-              }
-            },
-            "404": {
-                "description": "Country not found",
-                "schema": {
-                    "$ref": "#/definitions/Error"
-                  }
-            }
-          }
-        }
-      },
-      "/covid/death/{country}": {
-        "parameters": [
-          {
-            "name": "country",
-            "in": "path",
-            "required": true,
-            "description": "Name in english of the country with the first capital letter",
-            "type": "string"
-          }
-        ],
-        "get": {
-          "tags": [
-            "Countries"
-          ],
-          "summary": "Get the number of deaths cases of a country on the current date",
-          "responses": {
-            "200": {
-              "description": "Country is found",
-              "schema": {
-                "$ref": "#/definitions/Deaths"
-              }
-            },
-            "404": {
-                "description": "Country not found",
-                "schema": {
-                    "$ref": "#/definitions/Error"
-                  }
-            }
-          }
-        }
-      },
-      "/covid/recovered/{country}": {
-        "parameters": [
-          {
-            "name": "country",
-            "in": "path",
-            "required": true,
-            "description": "Name in english of the country with the first capital letter",
-            "type": "string"
-          }
-        ],
-        "get": {
-          "tags": [
-            "Countries"
-          ],
-          "summary": "Get the number of recovered cases of a country on the current date",
-          "responses": {
-            "200": {
-              "description": "Country is found",
-              "schema": {
-                "$ref": "#/definitions/Recovered"
-              }
-            },
-            "404": {
-                "description": "Country not found",
-                "schema": {
-                    "$ref": "#/definitions/Error"
-                  }
-            }
-          }
-        }
-      },
-      "/covidsummary/summaryGlobal": {
-        "get": {
-          "tags": [
-            "Countries"
-          ],
-          "summary": "Get the global summary of all countries till the current date",
-          "responses": {
-            "200": {
-              "description": "Summary obtained",
-              "schema": {
-                "$ref": "#/definitions/Countries"
-              }
-            },
-            "404": {
-                "description": "Summary not found",
-                "schema": {
-                    "$ref": "#/definitions/Error"
-                  }
-            }
-          }
-        }
-      },
-      "/covid/global/deaths": {
-        "get": {
-          "tags": [
-            "Countries"
-          ],
-          "summary": "Get the global stat of deaths cases till the current date",
-          "responses": {
-            "200": {
-              "description": "Summary obtained",
-              "schema": {
-                "$ref": "#/definitions/Recovered"
-              }
-            },
-            "404": {
-                "description": "Summary not found",
-                "schema": {
-                    "$ref": "#/definitions/Deaths"
-                  }
-            }
-          }
-        }
-      },
-      "/covid/global/recovered": {
-        "get": {
-          "tags": [
-            "Countries"
-          ],
-          "summary": "Get the global stat of recovered cases till the current date",
-          "responses": {
-            "200": {
-              "description": "Summary obtained",
-              "schema": {
-                "$ref": "#/definitions/Recovered"
-              }
-            },
-            "404": {
-                "description": "Summary not found",
-                "schema": {
-                    "$ref": "#/definitions/Error"
-                  }
-            }
-          }
-        }
-      },
-      "/covid/global/confirmed": {
-        "get": {
-          "tags": [
-            "Countries"
-          ],
-          "summary": "Get the global stat of confirmed cases till the current date",
-          "responses": {
-            "200": {
-              "description": "Summary obtained",
-              "schema": {
-                "$ref": "#/definitions/Confirmed"
-              }
-            },
-            "404": {
-                "description": "Summary not found",
-                "schema": {
-                    "$ref": "#/definitions/Error"
-                  }
+        "summary": "Initialize token",
+        "responses": {
+          "200": {
+            "description": "Token created. To use this token in swagger copy it, click \"Authorize\" and type 'Bearer <token>'",
+            "schema": {
+              "$ref": "#/definitions/Token"
             }
           }
         }
       }
     },
-    "definitions": {
-    "Country": {
-        "properties": {
-            "uid": {
+    "/covid/confirmed-people/{iso}": {
+      "get": {
+        "tags": [
+          "Country data"
+        ],
+        "summary": "Get confirmed people by a given ISO code",
+        "parameters": [
+          {
+            "name": "iso",
+            "in": "path",
+            "required": true,
             "type": "string",
-            "uniqueItems": true
-            },
-            "country_iso2": {
-            "type": "string"
-            },
-            "country_iso3": {
-            "type": "string"
-            },
-            "country_code": {
-            "type": "integer"
-            },
-            "state": {
-            "type": "string"
-            },
-            "combined_name": {
-            "type": "string"
-            },
-            "population": {
-            "type": "integer"
-            },
-            "loc": {
-            "type": "object",
-            "properties":{
-                "type": {
-                    "type": "string"
-                },
-                "coordinates": {
-                    "type": "array",
-                    "items":{
-                        "type" : "integer"
-                    }
-                }
-            }	
-            },
-            "date": {
-            "type": "string"
-            },
-            "confirmed": {
-            "type": "integer"
-            },
-            "deaths": {
-            "type": "integer"
-            },
-            "recovered": {
-            "type": "integer"
+            "description": "Country ISO code"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Data found",
+            "schema": {
+              "$ref": "#/definitions/Confirmed"
             }
+          },
+          "401": {
+            "description": "Token not authorizated",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "User not authorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Country not found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
         }
-        },
-      "Countries": {
-        "type": "array",
-        "$ref": "#/definitions/Country"
-      },
-      "Error": {
-        "type": "object",
-        "properties": {
-            "message" : {"type" : "string"}
+      }
+    },
+    "/covid/dead-people/{iso}": {
+      "get": {
+        "tags": [
+          "Country data"
+        ],
+        "summary": "Get dead people by a given ISO code",
+        "parameters": [
+          {
+            "name": "iso",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Country ISO code"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Data found",
+            "schema": {
+              "$ref": "#/definitions/Deaths"
+            }
+          },
+          "401": {
+            "description": "Token not authorizated",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "User not authorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Country not found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
         }
-      },
-      "Confirmed": {
-        "type": "object",
-        "properties": {
-            "confirmed" : {"type" : "integer"}
+      }
+    },
+    "/covid/recover-people/{iso}": {
+      "get": {
+        "tags": [
+          "Country data"
+        ],
+        "summary": "Get recover people by a given ISO code",
+        "parameters": [
+          {
+            "name": "iso",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Country ISO code"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Data found",
+            "schema": {
+              "$ref": "#/definitions/Recovered"
+            }
+          },
+          "401": {
+            "description": "Token not authorizated",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "User not authorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Country not found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
         }
-      },
-      "Deaths": {
-        "type": "object",
-        "properties": {
-            "deaths" : {"type" : "integer"}
+      }
+    },
+    "/covid/confirmed-bydays/{iso}": {
+      "get": {
+        "tags": [
+          "Country data"
+        ],
+        "summary": "Get confirmed people for last 15 days, divided day by day, for a given ISO code",
+        "parameters": [
+          {
+            "name": "iso",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Country ISO code"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Data found. Response are two arrays where each position is the date indicated in \"dates\" array",
+            "schema": {
+              "$ref": "#/definitions/ConfirmedByDay"
+            }
+          },
+          "401": {
+            "description": "Token not authorizated",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "User not authorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Country not found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
         }
-      },
-      "Recovered": {
-        "type": "object",
-        "properties": {
-            "recovered" : {"type" : "integer"}
+      }
+    },
+    "/covid/recover-bydays/{iso}": {
+      "get": {
+        "tags": [
+          "Country data"
+        ],
+        "summary": "Get recover people for last 15 days, divided day by day, for a given ISO code",
+        "parameters": [
+          {
+            "name": "iso",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Country ISO code"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Data found. Response are two arrays where each position is the date indicated in \"dates\" array",
+            "schema": {
+              "$ref": "#/definitions/RecoveredByDay"
+            }
+          },
+          "401": {
+            "description": "Token not authorizated",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "User not authorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Country not found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/covid/dead-bydays/{iso}": {
+      "get": {
+        "tags": [
+          "Country data"
+        ],
+        "summary": "Get dead people for last 15 days, divided day by day, for a given ISO code",
+        "parameters": [
+          {
+            "name": "iso",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Country ISO code"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Data found. Response are two arrays where each position is the date indicated in \"dates\" array",
+            "schema": {
+              "$ref": "#/definitions/DeathsByDay"
+            }
+          },
+          "401": {
+            "description": "Token not authorizated",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "User not authorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Country not found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/covid/population/{iso}": {
+      "get": {
+        "tags": [
+          "Country data"
+        ],
+        "summary": "Get current population for a given ISO code",
+        "parameters": [
+          {
+            "name": "iso",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Country ISO code"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Data found",
+            "schema": {
+              "$ref": "#/definitions/Population"
+            }
+          },
+          "401": {
+            "description": "Token not authorizated",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "User not authorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Country not found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/covid/global/confirmed/": {
+      "get": {
+        "tags": [
+          "Global data"
+        ],
+        "summary": "Get global confirmed cases",
+        "responses": {
+          "200": {
+            "description": "Data found",
+            "schema": {
+              "$ref": "#/definitions/Confirmed"
+            }
+          },
+          "401": {
+            "description": "Token not authorizated",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "User not authorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Can't retrieve data from countries",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/covid/global/recovered/": {
+      "get": {
+        "tags": [
+          "Global data"
+        ],
+        "summary": "Get global recovered cases",
+        "responses": {
+          "200": {
+            "description": "Data found",
+            "schema": {
+              "$ref": "#/definitions/Recovered"
+            }
+          },
+          "401": {
+            "description": "Token not authorizated",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "User not authorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Can't retrieve data from countries",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/covid/global/deaths/": {
+      "get": {
+        "tags": [
+          "Global data"
+        ],
+        "summary": "Get global deaths cases",
+        "responses": {
+          "200": {
+            "description": "Data found",
+            "schema": {
+              "$ref": "#/definitions/Deaths"
+            }
+          },
+          "401": {
+            "description": "Token not authorizated",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "User not authorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Can't retrieve data from countries",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/covid/global/confirmed-bydays/": {
+      "get": {
+        "tags": [
+          "Global data"
+        ],
+        "summary": "Get confirmed people for last 15 days, divided day by day",
+        "responses": {
+          "200": {
+            "description": "Data found. Response are two arrays where each position is the date indicated in \"dates\"",
+            "schema": {
+              "$ref": "#/definitions/ConfirmedByDay"
+            }
+          },
+          "401": {
+            "description": "Token not authorizated",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "User not authorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Can't retrieve data from countries",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/covid/global/recover-bydays/": {
+      "get": {
+        "tags": [
+          "Global data"
+        ],
+        "summary": "Get recovered people for last 15 days, divided day by day",
+        "responses": {
+          "200": {
+            "description": "Data found. Response are two arrays where each position is the date indicated in \"dates\"",
+            "schema": {
+              "$ref": "#/definitions/RecoveredByDay"
+            }
+          },
+          "401": {
+            "description": "Token not authorizated",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "User not authorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Can't retrieve data from countries",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/covid/global/dead-bydays/": {
+      "get": {
+        "tags": [
+          "Global data"
+        ],
+        "summary": "Get dead people for last 15 days, divided day by day",
+        "responses": {
+          "200": {
+            "description": "Data found. Response are two arrays where each position is the date indicated in \"dates\"",
+            "schema": {
+              "$ref": "#/definitions/DeathsByDay"
+            }
+          },
+          "401": {
+            "description": "Token not authorizated",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "User not authorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Can't retrieve data from countries",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/covid/global/countries-data/": {
+      "get": {
+        "tags": [
+          "Global data"
+        ],
+        "summary": "Get confirmed and deaths from each country",
+        "responses": {
+          "200": {
+            "description": "Data found",
+            "schema": {
+              "$ref": "#/definitions/CountriesData"
+            }
+          },
+          "401": {
+            "description": "Token not authorizated",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "User not authorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Can't retrieve data from countries",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/covid/global/population/": {
+      "get": {
+        "tags": [
+          "Global data"
+        ],
+        "summary": "Get global population",
+        "responses": {
+          "200": {
+            "description": "Data found",
+            "schema": {
+              "$ref": "#/definitions/Population"
+            }
+          },
+          "401": {
+            "description": "Token not authorizated",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "User not authorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Can't retrieve data from countries",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/covid/info/last-date/": {
+      "get": {
+        "tags": [
+          "Info data"
+        ],
+        "summary": "Get the last date the database was updated",
+        "responses": {
+          "200": {
+            "description": "Last date found",
+            "schema": {
+              "$ref": "#/definitions/LastDate"
+            }
+          },
+          "401": {
+            "description": "Token not authorizated",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "User not authorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Last date not found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
         }
       }
     }
+  },
+  "definitions": {
+    "Token": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string"
+        }
+      }
+    },
+    "LastDate": {
+      "type": "object",
+      "properties": {
+        "last_date": {
+          "type": "string"
+        }
+      }
+    },
+    "Confirmed": {
+      "type": "object",
+      "properties": {
+        "confirmed": {
+          "type": "number"
+        }
+      }
+    },
+    "Recovered": {
+      "type": "object",
+      "properties": {
+        "recovered": {
+          "type": "number"
+        }
+      }
+    },
+    "Deaths": {
+      "type": "object",
+      "properties": {
+        "deaths": {
+          "type": "number"
+        }
+      }
+    },
+    "ConfirmedByDay": {
+      "type": "object",
+      "properties": {
+        "dates": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "confirmed": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "RecoveredByDay": {
+      "type": "object",
+      "properties": {
+        "dates": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "confirmed": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "DeathsByDay": {
+      "type": "object",
+      "properties": {
+        "dates": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "confirmed": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "Population": {
+      "type": "object",
+      "properties": {
+        "population": {
+          "type": "number"
+        }
+      }
+    },
+    "CountriesData": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "Error": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    }
+  }
 }

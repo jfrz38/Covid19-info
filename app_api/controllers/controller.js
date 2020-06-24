@@ -8,14 +8,14 @@ const metadata_model = mongoose.model('MetaDataModel');
   const getConfirmedFromCountry = (req, res) => {
     res.header('Access-Control-Allow-Origin', '*');
     countries_summary_model
-    .find({country_iso2s: req.params.iso})
+    .find({country_iso2s: req.params.iso.toUpperCase()})
     .sort({date:-1})
     .exec((err, country) => {
       if (country.length == 0) {
         return res
           .status(404)
           .json({
-            "message": "country not found" });
+            "message": "ISO "+req.params.iso+" has not any associated country" });
       }
       res
         .status(200)
@@ -27,7 +27,7 @@ const metadata_model = mongoose.model('MetaDataModel');
   const getDeathsFromCountry = (req, res) => {
     res.header('Access-Control-Allow-Origin', '*');
     countries_summary_model
-    .find({country_iso2s: req.params.iso})
+    .find({country_iso2s: req.params.iso.toUpperCase()})
     .sort({date:-1})
     .exec((err, country) => {
       if (country.length == 0) {
@@ -46,7 +46,7 @@ const metadata_model = mongoose.model('MetaDataModel');
   const getRecoveredFromCountry = (req, res) => {
     res.header('Access-Control-Allow-Origin', '*');
     countries_summary_model
-    .find({country_iso2s: req.params.iso})
+    .find({country_iso2s: req.params.iso.toUpperCase()})
     .sort({date:-1})
     .exec((err, country) => {
       if (country.length == 0) {
@@ -65,7 +65,7 @@ const metadata_model = mongoose.model('MetaDataModel');
   const getCountryPopulation = (req,res) => {
     res.header('Access-Control-Allow-Origin', '*');
     countries_summary_model
-    .find({country_iso2s: req.params.iso})
+    .find({country_iso2s: req.params.iso.toUpperCase()})
     .sort({date:-1})
     .exec((err, country) => {
       if (country.length == 0) {
@@ -87,7 +87,7 @@ const metadata_model = mongoose.model('MetaDataModel');
     const agg = [
       {
         '$match': {
-          'country_iso2s': req.params.iso
+          'country_iso2s': req.params.iso.toUpperCase()
         }
       }, {
         '$sort': {
@@ -131,7 +131,7 @@ const metadata_model = mongoose.model('MetaDataModel');
     const agg = [
       {
         '$match': {
-          'country_iso2s': req.params.iso
+          'country_iso2s': req.params.iso.toUpperCase()
         }
       }, {
         '$sort': {
@@ -175,7 +175,7 @@ const metadata_model = mongoose.model('MetaDataModel');
     const agg = [
       {
         '$match': {
-          'country_iso2s': req.params.iso
+          'country_iso2s': req.params.iso.toUpperCase()
         }
       }, {
         '$sort': {
@@ -354,7 +354,7 @@ const metadata_model = mongoose.model('MetaDataModel');
           return res
             .status(404)
             .json({
-              "message": "country not found" });
+              "message": "Can't retrieve data from countries" });
         }
         var data = []
         country.forEach(element=>{
