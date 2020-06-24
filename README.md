@@ -1,5 +1,5 @@
-# Tecnologías y Recursos Web/Móvil
-Proyecto de la asignatura Tecnologías y Recursos Web/Móvil
+# Covid APP
+Proyecto de la asignatura Tecnologías y Recursos Web/Móvil - UAL
 
 API y cliente para obtener y mostrar información del COVID-19
 
