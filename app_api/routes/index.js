@@ -25,4 +25,7 @@ router.get('/covid/global/confirmed-bydays',controller.getGlobalConfirmedByDays)
 router.get('/covid/global/dead-bydays',controller.getGlobalDeathsByDays)
 router.get('/covid/global/recover-bydays',controller.getGlobalRecoveredByDays)
 
+//Metadata
+router.get('/covid/info/last-date',controller.getLastDate)
+
 module.exports = router;

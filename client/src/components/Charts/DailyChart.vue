@@ -26,7 +26,8 @@ export default {
             labels: [],
             series: []
 		  },
-		  title: "Personas"
+		  title: "Personas",
+		  color: "#5dade2"
         };
       }
 	}
@@ -49,7 +50,8 @@ export default {
           zoom: {
             enabled: false,
 		  }
-        },
+		},
+		colors: [this.chart.color],
         dataLabels: {
           enabled: false,
         },
@@ -68,69 +70,5 @@ export default {
       },
     };
   }
-  /*data: function() {
-		return {
-			aux: [],
-			arraySeries: [],
-		};
-	},
-	components: {
-		apexchart: VueApexCharts
-	},
-	computed: {
-		datos: function() {
-			return {
-				series: [
-					{
-						name: "Infectados",
-						data: this.data
-					}
-				]
-			};
-		},
-		options: function() {
-			return {
-				chart: {
-					stacked: false,
-					zoom : {
-						enabled : false
-					}
-				},
-
-				dataLabels: {
-					enabled: false
-				},
-				
-				markers: {
-					size: 0,
-					style: "full"
-				},
-				//colors: ['#0165fc'],
-
-				xaxis: {
-					type: "datetime",
-					labels:{
-						style: {
-							colors : "#E3E4E5"
-						}
-					},
-				},
-				fill:{
-					colors: ["#FFFFFF"]
-				},
-				yaxis : {
-					labels:{
-						style: {
-							colors : "#E3E4E5"
-						}
-					},
-				}
-
-			};
-        },
-        
-	},
-	methods: {
-	}*/
 };
 </script>

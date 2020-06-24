@@ -157,13 +157,13 @@
                 <template slot="content">
                   <h4 class="title">Casos confirmados</h4>
                   <p class="category">
-                    <span class="text-success">
+                    <span style="color:#5dade2">
                       <i class="fas fa-long-arrow-alt-up"></i> {{current_country.dailyConfirmedImprove.day}}%
                     </span>
                     increase in last day.
                   </p>
                   <p class="category">
-                    <span class="text-success">
+                    <span style="color:#5dade2">
                       <i class="fas fa-long-arrow-alt-up"></i> {{current_country.dailyConfirmedImprove.month}}%
                     </span>
                     increase in last 15 days.
@@ -213,13 +213,13 @@
                   <template slot="content">
                     <h4 class="title">Personas fallecidas</h4>
                     <p class="category">
-                    <span class="text-success">
+                    <span style="color:#e74c3c">
                       <i class="fas fa-long-arrow-alt-up"></i> {{current_country.dailyDeathsImprove.day}}%
                     </span>
                     increase in last day.
                   </p>
                   <p class="category">
-                    <span class="text-success">
+                    <span style="color:#e74c3c">
                       <i class="fas fa-long-arrow-alt-up"></i> {{current_country.dailyDeathsImprove.month}}%
                     </span>
                     increase in last 15 days.
@@ -302,7 +302,8 @@ export default {
           labels: [],
           series: [],
         },
-        title:"Confirmados"
+        title:"Confirmados",
+        color:"#5dade2"
       },
       dailyRecovered: {
         country: "",
@@ -310,7 +311,8 @@ export default {
           labels: [],
           series: [],
         },
-        title:"Recuperados"
+        title:"Recuperados",
+        color: "#2ecc71"
       },
       dailyDeaths: {
         country: "",
@@ -318,14 +320,15 @@ export default {
           labels: [],
           series: [],
         },
-        title:"Fallecidos"
+        title:"Fallecidos",
+        color: "#e74c3c"
       },
       chartData: [
           ['Country','Confirmed', 'Deaths'],
           [ 'ES', 0,0]
         ],
       chartOptions:{
-          region:'ES',
+          region:'world',
           legend:'none',
           backgroundColor: '#81d4fa',
         }
@@ -395,6 +398,94 @@ export default {
         }).catch(e=>{
           self.chartOptions.region="world"
         })
+
+        //Datos por días
+
+        //Confirmados
+        axios.get('http://localhost:4000/covid/global/confirmed-bydays')
+        .then(response=> {
+          self.dailyConfirmed.data.labels = response.data.dates;
+          self.dailyConfirmed.data.series = response.data.confirmed;
+          self.dailyConfirmed.country = "Global"
+
+          if(response.data.confirmed.length > 2){
+            //Calcular mejora porcentual
+            //Último día
+            var lastTwo = response.data.confirmed.slice((response.data.confirmed.length - 2), response.data.confirmed.length)
+            var improve = ((lastTwo[1]-lastTwo[0])/lastTwo[1])*100
+            self.current_country.dailyConfirmedImprove.day = improve.toFixed(2)
+            //Últimos 15 días
+            var aux = response.data.confirmed
+            improve = 0
+            improve = ((aux[aux.length-1]-aux[0])/aux[aux.length-1])*100
+            self.current_country.dailyConfirmedImprove.month = improve.toFixed(2)
+          }else{
+            self.current_country.dailyConfirmedImprove.day = 0;
+            self.current_country.dailyConfirmedImprove.month = 0;
+          }
+        }).catch(_=>{
+          self.dailyConfirmed.data.labels = [];
+          self.dailyConfirmed.data.series = [];
+          self.dailyConfirmed.country = "Global"
+          self.current_country.dailyConfirmedImprove.day = 0;
+          self.current_country.dailyConfirmedImprove.month = 0;
+        })
+        //Curados
+        axios.get('http://localhost:4000/covid/global/recover-bydays')
+        .then(response=> {
+          self.dailyRecovered.data.labels = response.data.dates;
+          self.dailyRecovered.data.series = response.data.recovered;
+          self.dailyRecovered.country = "Global"
+          if(response.data.recovered.length > 2){
+            //Calcular mejora porcentual
+            //Último día
+            var lastTwo = response.data.recovered.slice((response.data.recovered.length - 2), response.data.recovered.length)
+            var improve = ((lastTwo[1]-lastTwo[0])/lastTwo[1])*100
+            self.current_country.dailyRecoverImprove.day = improve.toFixed(2)
+            //Últimos 15 días
+            var aux = response.data.recovered
+            improve = 0
+            improve = ((aux[aux.length-1]-aux[0])/aux[aux.length-1])*100
+            self.current_country.dailyRecoverImprove.month = improve.toFixed(2)
+          }else{
+            self.current_country.dailyRecoverImprove.day = 0;
+            self.current_country.dailyRecoverImprove.month = 0;
+          }
+        }).catch(_=>{
+          self.dailyRecovered.data.labels = [];
+          self.dailyRecovered.data.series = [];
+          self.dailyRecovered.country = "Global"
+          self.current_country.dailyRecoverImprove.day = 0;
+          self.current_country.dailyRecoverImprove.month = 0;
+        })
+        //Fallecidos
+        axios.get('http://localhost:4000/covid/global/dead-bydays')
+        .then(response=> {
+          self.dailyDeaths.data.labels = response.data.dates;
+          self.dailyDeaths.data.series = response.data.deaths;
+          self.dailyDeaths.country = "Global"
+          if(response.data.deaths.length > 2){
+            //Calcular mejora porcentual
+            //Último día
+            var lastTwo = response.data.deaths.slice((response.data.deaths.length - 2), response.data.deaths.length)
+            var improve = ((lastTwo[1]-lastTwo[0])/lastTwo[1])*100
+            self.current_country.dailyDeathsImprove.day = improve.toFixed(2)
+            //Últimos 15 días
+            var aux = response.data.deaths
+            improve = 0
+            improve = ((aux[aux.length-1]-aux[0])/aux[aux.length-1])*100
+            self.current_country.dailyDeathsImprove.month = improve.toFixed(2)
+          }else{
+            self.current_country.dailyDeathsImprove.day = 0;
+            self.current_country.dailyDeathsImprove.month = 0;
+          }
+        }).catch(_=>{
+          self.dailyDeaths.data.labels = [];
+          self.dailyDeaths.data.series = [];
+          self.dailyDeaths.country = "Global"
+          self.current_country.dailyDeathsImprove.day = 0;
+          self.current_country.dailyDeathsImprove.month = 0;
+        })
       }else{
         //Estadísticas de un país en concreto
         this.loadData(country);
@@ -459,6 +550,8 @@ export default {
           self.dailyConfirmed.data.labels = [];
           self.dailyConfirmed.data.series = [];
           self.dailyConfirmed.country = country.Code
+          self.current_country.dailyConfirmedImprove.day = 0;
+          self.current_country.dailyConfirmedImprove.month = 0;
         })
         //Curados
         axios.get('http://localhost:4000/covid/recover-bydays/'+country.Code)
@@ -485,6 +578,8 @@ export default {
           self.dailyRecovered.data.labels = [];
           self.dailyRecovered.data.series = [];
           self.dailyRecovered.country = country.Code
+          self.current_country.dailyRecoverImprove.day = 0;
+          self.current_country.dailyRecoverImprove.month = 0;
         })
         //Fallecidos
         axios.get('http://localhost:4000/covid/dead-bydays/'+country.Code)
@@ -511,6 +606,8 @@ export default {
           self.dailyDeaths.data.labels = [];
           self.dailyDeaths.data.series = [];
           self.dailyDeaths.country = country.Code
+          self.current_country.dailyDeathsImprove.day = 0;
+          self.current_country.dailyDeathsImprove.month = 0;
         })
         //Esperar al array de promesas
         Promise.all(promises).then(_=>{
@@ -523,11 +620,17 @@ export default {
       }
     },
     getDay(){
-      const today = new Date();
-      const yesterday = new Date(today);
-      yesterday.setDate(yesterday.getDate() - 1);
-      const date = yesterday.getDate() + '-'+(yesterday.getMonth()+1)+'-'+yesterday.getFullYear();
-      this.timestamp = date;
+      axios.get('http://localhost:4000/covid/info/last-date')
+        .then(response=> {
+          this.timestamp = response.data.last_date
+      }).catch(_=>{
+        //Cálculo de la fecha manualmente
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const date = yesterday.getDate() + '-'+(yesterday.getMonth()+1)+'-'+yesterday.getFullYear();
+        this.timestamp = date;
+      })
     },
     loadData(country){
       var self = this;
@@ -568,8 +671,8 @@ export default {
     this.getDay();
     this.total_countries = countries;
     this.total_countries.unshift({Name:"Global",Code:""});
-    //Por defecto muestra España
-    this.countrySelected({Name:"Spain",Code:"ES"});
+    //Por defecto muestra Global
+    this.countrySelected({Name:"Global",Code:""});
   }
 };
 </script>

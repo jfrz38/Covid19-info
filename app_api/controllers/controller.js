@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const global_model = mongoose.model('GlobalModel');
 const countries_summary_model = mongoose.model('CountriesSummaryModel');
 const metadata_model = mongoose.model('MetaDataModel');
-const moment = require('moment');
 
   //Por país
   //Total
@@ -85,235 +84,466 @@ const moment = require('moment');
   //Por días
   const getConfirmedByDaysFromCountry = (req,res) =>{
     res.header('Access-Control-Allow-Origin', '*');
-    countries_summary_model
-    .find({country_iso2s: req.params.iso})
-    .sort({date:-1})
-    .limit(15)
-    .exec((err, info) => {
-      if (info.length == 0) {
-        return res
-          .status(404)
-          .json({
-            "message": "can't retrieve info from country "+req.params.iso });
+    const agg = [
+      {
+        '$match': {
+          'country_iso2s': req.params.iso
+        }
+      }, {
+        '$sort': {
+          'date': -1
+        }
+      }, {
+        '$limit': 15
+      }, {
+        '$group': {
+          '_id': null, 
+          'confirmed': {
+            '$push': '$confirmed'
+          }, 
+          'dates': {
+            '$push': {
+              '$dateToString': {
+                'format': '%d-%m', 
+                'date': '$date'
+              }
+            }
           }
-          var dates = []
-          var confirmed = []
-          info.forEach(element=>{
-            var dd = String(element.date.getDate()).padStart(2, '0');
-            var mm = String(element.date.getMonth() + 1).padStart(2, '0');
-            dates.push(dd+"-"+mm)
-            confirmed.push(element.confirmed)
-          })
+        }
+      }
+    ];
+    countries_summary_model
+      .aggregate(agg, (err, result)=>{
+        if(result.length == 0){
+          return res
+            .status(404)
+            .json({
+              "message": "Can't retrieve data by days for "+req.params.iso });
+        }
+        result[0].dates.forEach(element=>{
 
-      res
-        .status(200)
-        .json({"dates" : dates.reverse(), "confirmed": confirmed.reverse()});        
-
-    });
+        })
+        res
+          .status(200)
+          .json({"dates" : result[0].dates.reverse(), "confirmed": result[0].confirmed.reverse()});
+      })
   };
+
   const getDeathsByDaysFromCountry = (req,res) =>{
     res.header('Access-Control-Allow-Origin', '*');
-    countries_summary_model
-    .find({country_iso2s: req.params.iso})
-    .sort({date:-1})
-    .limit(15)
-    .exec((err, info) => {
-      if (info.length == 0) {
-        return res
-          .status(404)
-          .json({
-            "message": "can't retrieve info from country "+req.params.iso });
+    const agg = [
+      {
+        '$match': {
+          'country_iso2s': req.params.iso
+        }
+      }, {
+        '$sort': {
+          'date': -1
+        }
+      }, {
+        '$limit': 15
+      }, {
+        '$group': {
+          '_id': null, 
+          'deaths': {
+            '$push': '$deaths'
+          }, 
+          'dates': {
+            '$push': {
+              '$dateToString': {
+                'format': '%d-%m', 
+                'date': '$date'
+              }
+            }
           }
-          var dates = []
-          var deaths = []
-          info.forEach(element=>{
-            var dd = String(element.date.getDate()).padStart(2, '0');
-            var mm = String(element.date.getMonth() + 1).padStart(2, '0');
-            dates.push(dd+"-"+mm)
-            deaths.push(element.deaths)
-          })
-
-      res
-        .status(200)
-        .json({"dates" : dates.reverse(), "deaths": deaths.reverse()});
-    });  
+        }
+      }
+    ];
+    countries_summary_model
+      .aggregate(agg, (err, result)=>{
+        if(result.length == 0){
+          return res
+            .status(404)
+            .json({
+              "message": "Can't retrieve data by days for "+req.params.iso });
+        }
+        res
+          .status(200)
+          .json({"dates" : result[0].dates.reverse(), "deaths": result[0].deaths.reverse()});
+      })
   };
 
   const getRecoveredByDaysFromCountry = (req,res) =>{
     res.header('Access-Control-Allow-Origin', '*');
-    countries_summary_model
-    .find({country_iso2s: req.params.iso})
-    .sort({date:-1})
-    .limit(15)
-    .exec((err, info) => {
-      if (info.length == 0) {
-        return res
-          .status(404)
-          .json({
-            "message": "can't retrieve info from country "+req.params.iso });
+    const agg = [
+      {
+        '$match': {
+          'country_iso2s': req.params.iso
+        }
+      }, {
+        '$sort': {
+          'date': -1
+        }
+      }, {
+        '$limit': 15
+      }, {
+        '$group': {
+          '_id': null, 
+          'recovered': {
+            '$push': '$recovered'
+          }, 
+          'dates': {
+            '$push': {
+              '$dateToString': {
+                'format': '%d-%m', 
+                'date': '$date'
+              }
+            }
           }
-          var dates = []
-          var recovered = []
-          info.forEach(element=>{
-            var dd = String(element.date.getDate()).padStart(2, '0');
-            var mm = String(element.date.getMonth() + 1).padStart(2, '0');
-            dates.push(dd+"-"+mm)
-            recovered.push(element.recovered)
-          })
-
-      res
-        .status(200)
-        .json({"dates" : dates.reverse(), "recovered": recovered.reverse()});
-    });
+        }
+      }
+    ];
+    countries_summary_model
+      .aggregate(agg, (err, result)=>{
+        if(result.length == 0){
+          return res
+            .status(404)
+            .json({
+              "message": "Can't retrieve data by days for "+req.params.iso });
+        }
+        res
+          .status(200)
+          .json({"dates" : result[0].dates.reverse(), "recovered": result[0].recovered.reverse()});
+      })
   };
 
   //Global
   const getGlobalPopulation = (req,res)=>{
-    var date = new Date();
-    date.setHours(date.getHours() - 6);
-    date.setDate(date.getDate()-1)
-    date.setUTCHours(0,0,0,0);
     res.header('Access-Control-Allow-Origin', '*');
-    countries_summary_model
-    .find({date:date})
-    .exec((err, country) => {
-      if (country.length == 0) {
-        return res
-          .status(404)
-          .json({
-            "message": "country not found" });
-      }
-      var total = 0
-      country.forEach(element=>{
-        total+=element.population === undefined? 0: element.population
-      })
-      res
-        .status(200)
-        .json({"population" : total});        
+    getLastDateFromDB().then(date=>{
+      countries_summary_model
+      .find({date:date})
+      .exec((err, country) => {
+        if (country.length == 0) {
+          return res
+            .status(404)
+            .json({
+              "message": "country not found" });
+        }
+        var total = 0
+        country.forEach(element=>{
+          total+=element.population === undefined? 0: element.population
+        })
+        res
+          .status(200)
+          .json({"population" : total});        
 
-    });
+      });
+    })
+    
   }
 
   //Total
   const getGlobalConfirmed = (req,res) =>{
-    var date = new Date();
-    date.setHours(date.getHours() - 6);
-    date.setDate(date.getDate()-1)
-    date.setUTCHours(0,0,0,0);
     res.header('Access-Control-Allow-Origin', '*');
-    countries_summary_model
-    .find({date:date})
-    .exec((err, country) => {
-      if (country.length == 0) {
-        return res
-          .status(404)
-          .json({
-            "message": "country not found" });
-      }
-      var total = 0
-      country.forEach(element=>{
-        total+=element.confirmed
+    getLastDateFromDB().then(date=>{
+      const agg = [
+        {
+          '$match': {
+            'date': date
+          }
+        }, {
+          '$group': {
+            '_id': null, 
+            'totalConfirmed': {
+              '$sum': '$confirmed'
+            }
+          }
+        }
+      ];
+      countries_summary_model
+      .aggregate(agg, (err, result)=>{
+        if(result.length == 0){
+          return res
+            .status(404)
+            .json({
+              "message": "Can't retrieve global confirmed" });
+        }
+        res
+          .status(200)
+          .json({"confirmed" : result[0].totalConfirmed});  
       })
-      res
-        .status(200)
-        .json({"confirmed" : total});        
-
-    });
+    })
   };
 
   const getGlobalDeaths = (req,res) =>{
-    var date = new Date();
-    date.setHours(date.getHours() - 6);
-    date.setDate(date.getDate()-1)
-    date.setUTCHours(0,0,0,0);
     res.header('Access-Control-Allow-Origin', '*');
-    countries_summary_model
-    .find({date:date})
-    .exec((err, country) => {
-      if (country.length == 0) {
-        return res
-          .status(404)
-          .json({
-            "message": "country not found" });
-      }
-      var total = 0
-      country.forEach(element=>{
-        total+=element.deaths
+    getLastDateFromDB().then(date=>{
+      const agg = [
+        {
+          '$match': {
+            'date': date
+          }
+        }, {
+          '$group': {
+            '_id': null, 
+            'totalDeaths': {
+              '$sum': '$deaths'
+            }
+          }
+        }
+      ];
+      countries_summary_model
+      .aggregate(agg, (err, result)=>{
+        if(result.length == 0){
+          return res
+            .status(404)
+            .json({
+              "message": "Can't retrieve global deaths" });
+        }
+        res
+          .status(200)
+          .json({"deaths" : result[0].totalDeaths});  
       })
-      res
-        .status(200)
-        .json({"deaths" : total});        
-
-    });
+    })
   };
 
   const getGlobalRecovered = (req,res) =>{
-    var date = new Date();
-    date.setHours(date.getHours() - 6);
-    date.setDate(date.getDate()-1)
-    date.setUTCHours(0,0,0,0);
-    res.header('Access-Control-Allow-Origin', '*');
-    countries_summary_model
-    .find({date:date})
-    .exec((err, country) => {
-      if (country.length == 0) {
-        return res
-          .status(404)
-          .json({
-            "message": "country not found" });
-      }
-      var total = 0
-      country.forEach(element=>{
-        total+=element.recovered
+    getLastDateFromDB().then(date=>{
+      res.header('Access-Control-Allow-Origin', '*');
+      const agg = [
+        {
+          '$match': {
+            'date': date
+          }
+        }, {
+          '$group': {
+            '_id': null, 
+            'totalRecovered': {
+              '$sum': '$recovered'
+            }
+          }
+        }
+      ];
+      countries_summary_model
+      .aggregate(agg, (err, result)=>{
+        if(result.length == 0){
+          return res
+            .status(404)
+            .json({
+              "message": "Can't retrieve global recovered" });
+        }
+        res
+          .status(200)
+          .json({"recovered" : result[0].totalRecovered});  
       })
-      res
-        .status(200)
-        .json({"recovered" : total});        
-
-    });
+    })
   };
 
   const getGlobalDataByCountries = (req,res) =>{
-    //Devolver una lista de todos los países donde cada país es un array con los datos: ['ISO','confirmed','death']
-    var date = new Date();
-    date.setHours(date.getHours() - 6);
-    date.setDate(date.getDate()-1)
-    date.setUTCHours(0,0,0,0);
-    res.header('Access-Control-Allow-Origin', '*');
-    //global_model
-    countries_summary_model
-    .find({date:date})
-    .exec((err, country) => {
-      if (country.length == 0) {
-        return res
-          .status(404)
-          .json({
-            "message": "country not found" });
-      }
-      var data = []
-      country.forEach(element=>{
-        if(element.country == "France") element.country_iso2s[0] = "FR"
-        if(element.country == "United Kingdom") element.country_iso2s[0] = "GB"
-        if(element.country == "China") element.country_iso2s[0] = "CN"
-        data.push([element.country_iso2s[0],element.confirmed,element.deaths])
-      })
-      
-      res
-        .status(200)
-        .json({"data" : data});        
+    getLastDateFromDB().then(date=>{
+      res.header('Access-Control-Allow-Origin', '*');
+      countries_summary_model
+      .find({date:date})
+      .exec((err, country) => {
+        if (country.length == 0) {
+          return res
+            .status(404)
+            .json({
+              "message": "country not found" });
+        }
+        var data = []
+        country.forEach(element=>{
+          if(element.country == "France") element.country_iso2s[0] = "FR"
+          if(element.country == "United Kingdom") element.country_iso2s[0] = "GB"
+          if(element.country == "China") element.country_iso2s[0] = "CN"
+          data.push([element.country_iso2s[0],element.confirmed,element.deaths])
+        })
+        
+        res
+          .status(200)
+          .json({"data" : data});        
 
-    });
+      });
+    })
   };
 
   //Por días
   const getGlobalConfirmedByDays = (req,res)=>{
-
+    res.header('Access-Control-Allow-Origin', '*');
+    const agg = [
+        {
+        '$group': {
+          '_id': {
+            'date': '$date'
+          }, 
+          'date': {
+            '$addToSet': {
+              '$dateToString': {
+                'format': '%d-%m', 
+                'date': '$date'
+              }
+            }
+          }, 
+          'totalConfirmed': {
+            '$sum': '$confirmed'
+          }
+        }
+      }, {
+        '$sort': {
+          '_id': -1
+        }
+      }, {
+        '$limit': 15
+      }
+    ];
+    countries_summary_model
+    .aggregate(agg, (err, result)=>{
+      if(result.length == 0){
+        return res
+          .status(404)
+          .json({
+            "message": "Can't retrieve global confirmed by days" });
+      }
+      var confirmed = []
+      var dates = []
+      result.map(r=>{
+        confirmed.push(r.totalConfirmed)
+        dates.push(r.date[0])
+      })
+      res
+        .status(200)
+        .json({"dates" : dates.reverse(), "confirmed": confirmed.reverse()}); 
+    })
   }
+
   const getGlobalRecoveredByDays = (req,res)=>{
-
+    res.header('Access-Control-Allow-Origin', '*');
+    const agg = [
+        {
+        '$group': {
+          '_id': {
+            'date': '$date'
+          }, 
+          'date': {
+            '$addToSet': {
+              '$dateToString': {
+                'format': '%d-%m', 
+                'date': '$date'
+              }
+            }
+          }, 
+          'totalRecovered': {
+            '$sum': '$recovered'
+          }
+        }
+      }, {
+        '$sort': {
+          '_id': -1
+        }
+      }, {
+        '$limit': 15
+      }
+    ];
+    countries_summary_model
+    .aggregate(agg, (err, result)=>{
+      if(result.length == 0){
+        return res
+          .status(404)
+          .json({
+            "message": "Can't retrieve global recovered by days" });
+      }
+      var recovered = []
+      var dates = []
+      result.map(r=>{
+        recovered.push(r.totalRecovered)
+        dates.push(r.date[0])
+      })
+      res
+        .status(200)
+        .json({"dates" : dates.reverse(), "recovered": recovered.reverse()}); 
+    })
   }
-  const getGlobalDeathsByDays = (req,res)=>{
 
+  const getGlobalDeathsByDays = (req,res)=>{
+    res.header('Access-Control-Allow-Origin', '*');
+    const agg = [
+        {
+        '$group': {
+          '_id': {
+            'date': '$date'
+          }, 
+          'date': {
+            '$addToSet': {
+              '$dateToString': {
+                'format': '%d-%m', 
+                'date': '$date'
+              }
+            }
+          }, 
+          'totalDeaths': {
+            '$sum': '$deaths'
+          }
+        }
+      }, {
+        '$sort': {
+          '_id': -1
+        }
+      }, {
+        '$limit': 15
+      }
+    ];
+    countries_summary_model
+    .aggregate(agg, (err, result)=>{
+      if(result.length == 0){
+        return res
+          .status(404)
+          .json({
+            "message": "Can't retrieve global deaths by days" });
+      }
+      var deaths = []
+      var dates = []
+      result.map(r=>{
+        deaths.push(r.totalDeaths)
+        dates.push(r.date[0])
+      })
+      res
+        .status(200)
+        .json({"dates" : dates.reverse(), "deaths": deaths.reverse()}); 
+    })
+  }
+
+
+  //MetaData
+  const getLastDate = (req,res)=>{
+    res.header('Access-Control-Allow-Origin', '*');
+    metadata_model
+    .find()
+    .exec((err, doc) => {
+      if(doc.length == 0){
+        return res
+        .status(404)
+        .json({
+          "message": "Can't load last date" });
+      }
+      var date = doc[0].last_date
+      var formatDate = date.getDate() + '-'+(date.getMonth()+1)+'-'+date.getFullYear();
+      res
+        .status(200)
+        .json({"last_date" : formatDate});  
+    })
+  }
+
+  async function getLastDateFromDB(){
+    return new Promise(resolve=>{
+      metadata_model
+      .find()
+      .exec((err,doc)=>{
+        if(doc.length == 0) resolve(new Date());
+        else resolve(doc[0].last_date)
+      })
+    })
+    
   }
 
   module.exports = {
@@ -331,5 +561,6 @@ const moment = require('moment');
     getGlobalConfirmedByDays,
     getGlobalRecoveredByDays,
     getGlobalDeathsByDays,
-    getGlobalDataByCountries
+    getGlobalDataByCountries,
+    getLastDate
   }
